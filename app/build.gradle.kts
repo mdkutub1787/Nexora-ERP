@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.smarterp"
+    namespace = "com.kutub.nexora.erp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.smarterp"
+        applicationId = "com.kutub.nexora.erp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -52,12 +52,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-network"))
-    implementation(project(":core-database"))
-    implementation(project(":feature-auth"))
-    implementation(project(":feature-dashboard"))
-
+    // Compose & UI
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,7 +61,22 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation("androidx.compose.material:material-icons-extended")
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
+
+    // Room Database
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // Lifecycle
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Settings
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.biometric)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
