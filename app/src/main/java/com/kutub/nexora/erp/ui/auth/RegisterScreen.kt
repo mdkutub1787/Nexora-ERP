@@ -38,7 +38,8 @@ fun RegisterScreen(
         Image(
             painter = androidx.compose.ui.res.painterResource(id = com.kutub.nexora.erp.R.drawable.splash_logo),
             contentDescription = "Nexora ERP Logo",
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.fillMaxWidth(0.6f),
+            contentScale = androidx.compose.ui.layout.ContentScale.FillWidth
         )
         
         Spacer(modifier = Modifier.height(16.dp))

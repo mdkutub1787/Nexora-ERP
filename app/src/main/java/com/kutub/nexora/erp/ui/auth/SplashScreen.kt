@@ -49,9 +49,10 @@ fun SplashScreen(onNavigateToLogin: () -> Unit) {
                 painter = painterResource(id = R.drawable.splash_logo),
                 contentDescription = "Nexora ERP Logo",
                 modifier = Modifier
-                    .size(200.dp)
+                    .fillMaxWidth(0.6f)
                     .scale(scaleAnim.value)
-                    .alpha(alphaAnim.value)
+                    .alpha(alphaAnim.value),
+                contentScale = androidx.compose.ui.layout.ContentScale.FillWidth
             )
             
             Spacer(modifier = Modifier.height(24.dp))

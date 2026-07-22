@@ -16,48 +16,54 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditProductScreen(
+    productId: Long? = null,
     onNavigateBack: () -> Unit,
     viewModel: ProductViewModel = hiltViewModel()
 ) {
+    val currency by viewModel.currency.collectAsState()
+    
     var name by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var stock by remember { mutableStateOf("") }
 
-    Scaffold(
-        modifier = Modifier.imePadding(),
-        topBar = {
-            TopAppBar(
-                title = { Text("Add Product", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
-            )
-        },
-        bottomBar = {
-            Box(modifier = Modifier.padding(16.dp)) {
-                Button(
-                    onClick = {
-                        if (name.isNotBlank() && price.isNotBlank() && stock.isNotBlank()) {
-                            viewModel.saveProduct(name, price, stock)
-                            onNavigateBack()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Save Product", fontSize = MaterialTheme.typography.titleMedium.fontSize)
-                }
+    LaunchedEffect(productId) {
+        if (productId != null) {
+            val product = viewModel.getProduct(productId)
+            if (product != null) {
+                name = product.name
+                price = product.price.toString()
+                stock = product.stockQuantity.toString()
             }
         }
-    ) { paddingValues ->
+    }
+
+    Scaffold(modifier = Modifier.imePadding(), topBar = {
+        TopAppBar(
+            title = { Text(if (productId != null) "Edit Product" else "Add Product", fontWeight = FontWeight.Bold) }, navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onBackground
+            )
+        )
+    }, bottomBar = {
+        Box(modifier = Modifier.padding(16.dp)) {
+            Button(
+                onClick = {
+                    if (name.isNotBlank() && price.isNotBlank() && stock.isNotBlank()) {
+                        viewModel.saveProduct(productId, name, price, stock)
+                        onNavigateBack()
+                    }
+                }, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp), shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(if (productId != null) "Update Product" else "Save Product", fontSize = MaterialTheme.typography.titleMedium.fontSize)
+            }
+        }
+    }) { paddingValues ->
         val scrollState = androidx.compose.foundation.rememberScrollState()
         Column(
             modifier = Modifier
@@ -90,7 +96,7 @@ fun AddEditProductScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
-            
+
         }
     }
 }

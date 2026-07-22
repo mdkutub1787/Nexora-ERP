@@ -24,31 +24,56 @@ import com.kutub.nexora.erp.data.model.ProductEntity
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductListScreen(
-    onNavigateToAddProduct: () -> Unit,
-    viewModel: ProductViewModel = hiltViewModel()
+    onNavigateToAddProduct: (Long?) -> Unit, viewModel: ProductViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val currency by viewModel.currency.collectAsState()
 
-    var selectedProduct by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<ProductEntity?>(null) }
-    var showDeleteConfirm by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var selectedProduct by androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf<ProductEntity?>(
+            null
+        )
+    }
+    var showDeleteConfirm by androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf(
+            false
+        )
+    }
 
-    com.kutub.nexora.erp.ui.components.NexoraGlobalDialog(
-        showDialog = selectedProduct != null && !showDeleteConfirm,
-        type = com.kutub.nexora.erp.ui.components.DialogType.INFO,
-        title = selectedProduct?.name ?: "Product Details",
-        message = selectedProduct?.let {
-            "Price: $${it.price}\n" +
-            "Cost Price: $${it.costPrice}\n" +
-            "Stock: ${it.stockQuantity}\n" +
-            "Barcode: ${it.barcode}\n" +
-            "SKU: ${it.sku}"
-        } ?: "",
-        confirmText = "Close",
-        dismissText = "Delete",
-        onConfirm = { selectedProduct = null },
-        onDismiss = { showDeleteConfirm = true }
-    )
+    if (selectedProduct != null && !showDeleteConfirm) {
+        AlertDialog(onDismissRequest = { selectedProduct = null }, title = {
+            Text(
+                selectedProduct?.name ?: "Product Details", fontWeight = FontWeight.Bold
+            )
+        }, text = {
+            selectedProduct?.let {
+                Column {
+                    Text("Price: $currency${it.price}")
+                    Text("Cost Price: $currency${it.costPrice}")
+                    Text("Stock: ${it.stockQuantity}")
+                    Text("Barcode: ${it.barcode}")
+                    Text("SKU: ${it.sku}")
+                }
+            }
+        }, confirmButton = {
+            TextButton(onClick = { selectedProduct = null }) {
+                Text("Close")
+            }
+        }, dismissButton = {
+            Row {
+                TextButton(onClick = { 
+                    selectedProduct?.let { onNavigateToAddProduct(it.id) }
+                    selectedProduct = null
+                }) {
+                    Text("Edit", color = MaterialTheme.colorScheme.primary)
+                }
+                TextButton(onClick = { showDeleteConfirm = true }) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            }
+        })
+    }
 
     com.kutub.nexora.erp.ui.components.NexoraGlobalDialog(
         showDialog = showDeleteConfirm,
@@ -62,28 +87,23 @@ fun ProductListScreen(
             showDeleteConfirm = false
             selectedProduct = null
         },
-        onDismiss = { showDeleteConfirm = false }
-    )
+        onDismiss = { showDeleteConfirm = false })
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddProduct,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Product")
-            }
-        },
-        topBar = {
-            TopAppBar(
-                title = { Text("Products", fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
-            )
+    Scaffold(floatingActionButton = {
+        FloatingActionButton(
+            onClick = { onNavigateToAddProduct(null) }, containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add Product")
         }
-    ) { paddingValues ->
+    }, topBar = {
+        TopAppBar(
+            title = { Text("Products", fontWeight = FontWeight.Bold) },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onBackground
+            )
+        )
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -123,11 +143,8 @@ fun ProductListScreen(
                     items(uiState.products) { product ->
                         ProductCard(
                             product = product,
-                            onClick = { selectedProduct = product },
-                            onDelete = {
-                                selectedProduct = product
-                                showDeleteConfirm = true
-                            }
+                            currency = currency,
+                            onClick = { selectedProduct = product }
                         )
                     }
                 }
@@ -139,8 +156,8 @@ fun ProductListScreen(
 @Composable
 fun ProductCard(
     product: ProductEntity,
+    currency: String,
     onClick: () -> Unit,
-    onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -166,14 +183,10 @@ fun ProductCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Stock: ${product.stockQuantity} | Price: $${product.price}",
+                    text = "Stock: ${product.stockQuantity} | Price: $currency${product.price}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            }
-            
-            TextButton(onClick = onDelete) {
-                Text("Delete", color = MaterialTheme.colorScheme.error)
             }
         }
     }

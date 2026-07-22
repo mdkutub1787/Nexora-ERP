@@ -21,8 +21,8 @@ fun LoginScreen(
     onNavigateToDashboard: () -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("mdkutub150@gmail.com") }
+    var password by remember { mutableStateOf("000000") }
 
     val scrollState = androidx.compose.foundation.rememberScrollState()
     Column(
@@ -38,7 +38,8 @@ fun LoginScreen(
         Image(
             painter = androidx.compose.ui.res.painterResource(id = com.kutub.nexora.erp.R.drawable.splash_logo),
             contentDescription = "Nexora ERP Logo",
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.fillMaxWidth(0.6f),
+            contentScale = androidx.compose.ui.layout.ContentScale.FillWidth
         )
         
         Spacer(modifier = Modifier.height(24.dp))

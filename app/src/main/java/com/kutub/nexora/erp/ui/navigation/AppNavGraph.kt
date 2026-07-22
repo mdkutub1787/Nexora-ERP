@@ -68,13 +68,29 @@ fun AppNavGraph(
         }
         composable("product_list_route") {
             ProductListScreen(
-                onNavigateToAddProduct = {
-                    navController.navigate("add_product_route")
+                onNavigateToAddProduct = { productId ->
+                    if (productId != null) {
+                        navController.navigate("add_edit_product_route?productId=$productId")
+                    } else {
+                        navController.navigate("add_edit_product_route")
+                    }
                 }
             )
         }
-        composable("add_product_route") {
+        composable(
+            route = "add_edit_product_route?productId={productId}",
+            arguments = listOf(
+                androidx.navigation.navArgument("productId") {
+                    type = androidx.navigation.NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { backStackEntry ->
+            val productIdStr = backStackEntry.arguments?.getString("productId")
+            val productId = productIdStr?.toLongOrNull()
+            
             AddEditProductScreen(
+                productId = productId,
                 onNavigateBack = {
                     navController.popBackStack()
                 }
