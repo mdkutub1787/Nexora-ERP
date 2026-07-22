@@ -30,6 +30,33 @@ fun DashboardScreen(
     val totalProducts by viewModel.totalProducts.collectAsState()
     val lowStockCount by viewModel.lowStockCount.collectAsState()
 
+    var showExitDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    androidx.activity.compose.BackHandler {
+        showExitDialog = true
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text(text = "Exit App", fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to exit Nexora ERP?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    (context as? android.app.Activity)?.finish()
+                }) {
+                    Text("Exit", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

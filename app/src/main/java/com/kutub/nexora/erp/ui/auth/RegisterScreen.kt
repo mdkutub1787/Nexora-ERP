@@ -1,5 +1,6 @@
 package com.kutub.nexora.erp.ui.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,14 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.kutub.nexora.erp.R.drawable.splash_logo),
+            contentDescription = "Nexora ERP Logo",
+            modifier = Modifier.size(100.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
         Text(
             text = "Create Account",
             style = MaterialTheme.typography.headlineLarge,
