@@ -104,7 +104,7 @@ fun AddEditProductScreen(
             Box(
                 modifier = Modifier
                     .size(140.dp)
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
                 contentAlignment = Alignment.Center
             ) {

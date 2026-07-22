@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kutub.nexora.erp.utils.BiometricHelper
 import com.kutub.nexora.erp.utils.CurrencyUtils
+import com.kutub.nexora.erp.utils.LocaleHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,7 +121,11 @@ fun SettingsScreen(
                 subtitle = "Switch app language to Bengali",
                 icon = Icons.Default.Language,
                 checked = currentLanguage == "bn",
-                onCheckedChange = { isBn -> viewModel.setLanguage(if (isBn) "bn" else "en") }
+                onCheckedChange = { isBn -> 
+                    val newLang = if (isBn) "bn" else "en"
+                    viewModel.setLanguage(newLang)
+                    LocaleHelper.applyLocale(newLang)
+                }
             )
 
             Spacer(Modifier.weight(1f))

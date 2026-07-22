@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import com.kutub.nexora.erp.data.database.ProductDao
 import com.kutub.nexora.erp.data.database.SmartErpDatabase
+import com.kutub.nexora.erp.data.local.dao.CategoryDao
+import com.kutub.nexora.erp.data.local.dao.SupplierDao
+import com.kutub.nexora.erp.data.local.dao.SaleDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,12 +27,32 @@ object DatabaseModule {
             context,
             SmartErpDatabase::class.java,
             "smarterp_db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides
     @Singleton
     fun provideProductDao(database: SmartErpDatabase): ProductDao {
         return database.productDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCategoryDao(database: SmartErpDatabase): CategoryDao {
+        return database.categoryDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSupplierDao(database: SmartErpDatabase): SupplierDao {
+        return database.supplierDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSaleDao(database: SmartErpDatabase): SaleDao {
+        return database.saleDao()
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import com.kutub.nexora.erp.ui.components.DialogType
 import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,17 +36,23 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var showRegisterSuccess by remember { mutableStateOf(false) }
 
+    // Professional Auto-Navigation Logic
+    if (showRegisterSuccess) {
+        LaunchedEffect(Unit) {
+            delay(1200) // Brief success display
+            showRegisterSuccess = false
+            onNavigateToLogin()
+        }
+    }
+
     NexoraGlobalDialog(
         showDialog = showRegisterSuccess,
         type = DialogType.SUCCESS,
         title = "Registration Successful",
-        message = "Your account has been created successfully. Please login to continue.",
-        confirmText = "Login",
-        onConfirm = {
-            showRegisterSuccess = false
-            onNavigateToLogin()
-        },
-        onDismiss = { showRegisterSuccess = false }
+        message = "Your account has been created successfully. Redirecting to login...",
+        confirmText = null, // Hide button for auto-navigation
+        onConfirm = null,
+        onDismiss = { }
     )
 
     val scrollState = androidx.compose.foundation.rememberScrollState()

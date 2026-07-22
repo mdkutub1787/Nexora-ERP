@@ -37,9 +37,9 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-
 import com.kutub.nexora.erp.ui.components.DialogType
 import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -77,20 +77,27 @@ fun LoginScreen(
         }
     }
 
+    // Professional Auto-Login Logic
+    if (showLoginSuccess) {
+        LaunchedEffect(Unit) {
+            delay(1200) // Brief success display
+            viewModel.login(email = email)
+            onNavigateToDashboard()
+            showLoginSuccess = false
+        }
+    }
+
     NexoraGlobalDialog(
         showDialog = showLoginSuccess,
         type = DialogType.SUCCESS,
         title = "Login Successful",
         message = "Welcome back to Nexora ERP!",
-        confirmText = "Continue",
-        onConfirm = {
-            showLoginSuccess = false
-            viewModel.login(email = email)
-            onNavigateToDashboard()
-        },
-        onDismiss = { showLoginSuccess = false })
+        confirmText = null, // Hide button for auto-login
+        onConfirm = null,
+        onDismiss = { }
+    )
 
-    val scrollState = androidx.compose.foundation.rememberScrollState()
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier

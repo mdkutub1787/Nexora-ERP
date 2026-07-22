@@ -14,13 +14,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kutub.nexora.erp.R
 import com.kutub.nexora.erp.ui.components.DialogType
 import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
 
@@ -28,6 +29,9 @@ import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
 @Composable
 fun DashboardScreen(
     onNavigateToProducts: () -> Unit,
+    onNavigateToSuppliers: () -> Unit,
+    onNavigateToCategories: () -> Unit,
+    onNavigateToSales: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToProfile: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
@@ -46,10 +50,10 @@ fun DashboardScreen(
     NexoraGlobalDialog(
         showDialog = showExitDialog,
         type = DialogType.WARNING,
-        title = "Exit App",
+        title = stringResource(R.string.logout), // Using logout as exit for now or add exit_app
         message = "Are you sure you want to exit Nexora ERP?",
         confirmText = "Exit",
-        dismissText = "Cancel",
+        dismissText = stringResource(R.string.cancel),
         onConfirm = { (context as? android.app.Activity)?.finish() },
         onDismiss = { showExitDialog = false }
     )
@@ -58,32 +62,12 @@ fun DashboardScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text(
-                            "Nexora ERP",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = onNavigateToProfile,
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = "Profile",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    Text(
+                        stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -104,7 +88,7 @@ fun DashboardScreen(
             // Welcome Header
             Column {
                 Text(
-                    text = "Welcome back,",
+                    text = stringResource(R.string.welcome_back),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -123,7 +107,7 @@ fun DashboardScreen(
             ) {
                 DashboardCard(
                     modifier = Modifier.weight(1f),
-                    title = "In Stock",
+                    title = stringResource(R.string.in_stock),
                     value = totalProducts.toString(),
                     icon = Icons.Default.Inventory2,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -131,7 +115,7 @@ fun DashboardScreen(
                 )
                 DashboardCard(
                     modifier = Modifier.weight(1f),
-                    title = "Low Stock",
+                    title = stringResource(R.string.low_stock),
                     value = lowStockCount.toString(),
                     icon = Icons.Default.ReportProblem,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -140,7 +124,7 @@ fun DashboardScreen(
             }
 
             Text(
-                "Quick Actions",
+                stringResource(R.string.quick_actions),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -154,28 +138,35 @@ fun DashboardScreen(
             ) {
                 item {
                     ActionItem(
-                        title = "Products",
+                        title = stringResource(R.string.products),
                         icon = Icons.Default.Inventory,
                         onClick = onNavigateToProducts
                     )
                 }
                 item {
                     ActionItem(
-                        title = "Suppliers",
+                        title = "Categories",
+                        icon = Icons.Default.Category,
+                        onClick = onNavigateToCategories
+                    )
+                }
+                item {
+                    ActionItem(
+                        title = stringResource(R.string.suppliers),
                         icon = Icons.Default.LocalShipping,
-                        onClick = { /* TODO */ }
+                        onClick = onNavigateToSuppliers
                     )
                 }
                 item {
                     ActionItem(
-                        title = "Sales",
+                        title = stringResource(R.string.sales),
                         icon = Icons.Default.PointOfSale,
-                        onClick = { /* TODO */ }
+                        onClick = onNavigateToSales
                     )
                 }
                 item {
                     ActionItem(
-                        title = "Reports",
+                        title = stringResource(R.string.reports),
                         icon = Icons.Default.BarChart,
                         onClick = { /* TODO */ }
                     )
