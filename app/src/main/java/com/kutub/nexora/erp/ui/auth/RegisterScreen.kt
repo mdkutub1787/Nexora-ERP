@@ -14,6 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kutub.nexora.erp.ui.components.DialogType
+import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,6 +25,20 @@ fun RegisterScreen(
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var showRegisterSuccess by remember { mutableStateOf(false) }
+
+    NexoraGlobalDialog(
+        showDialog = showRegisterSuccess,
+        type = DialogType.SUCCESS,
+        title = "Registration Successful",
+        message = "Your account has been created successfully. Please login to continue.",
+        confirmText = "Login",
+        onConfirm = {
+            showRegisterSuccess = false
+            onNavigateToLogin()
+        },
+        onDismiss = { showRegisterSuccess = false }
+    )
 
     val scrollState = androidx.compose.foundation.rememberScrollState()
     Column(
@@ -91,7 +107,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(24.dp))
         
         Button(
-            onClick = onNavigateToLogin, // Normally would register then login
+            onClick = { showRegisterSuccess = true },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),

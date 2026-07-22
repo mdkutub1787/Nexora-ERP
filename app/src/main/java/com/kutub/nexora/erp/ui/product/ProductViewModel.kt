@@ -56,7 +56,7 @@ class ProductViewModel @Inject constructor(
         return productRepository.getProductById(id).firstOrNull()
     }
 
-    fun saveProduct(id: Long?, name: String, price: String, stock: String) {
+    fun saveProduct(id: Long?, name: String, price: String, stock: String, imageUrl: String? = null) {
         if (name.isBlank() || price.isBlank() || stock.isBlank()) return
         
         viewModelScope.launch {
@@ -70,7 +70,7 @@ class ProductViewModel @Inject constructor(
                 stockQuantity = stock.toIntOrNull() ?: 0,
                 categoryId = null,
                 supplierId = null,
-                imageUrl = null
+                imageUrl = imageUrl
             )
             
             if (id != null && id > 0) {

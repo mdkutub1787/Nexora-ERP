@@ -16,9 +16,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.kutub.nexora.erp.data.model.ProductEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,6 +79,10 @@ fun ProductListScreen(
         })
     }
 
+    var showDeleteSuccess by androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf(false)
+    }
+
     com.kutub.nexora.erp.ui.components.NexoraGlobalDialog(
         showDialog = showDeleteConfirm,
         type = com.kutub.nexora.erp.ui.components.DialogType.WARNING,
@@ -86,8 +94,20 @@ fun ProductListScreen(
             selectedProduct?.let { viewModel.deleteProduct(it) }
             showDeleteConfirm = false
             selectedProduct = null
+            showDeleteSuccess = true
         },
-        onDismiss = { showDeleteConfirm = false })
+        onDismiss = { showDeleteConfirm = false }
+    )
+
+    com.kutub.nexora.erp.ui.components.NexoraGlobalDialog(
+        showDialog = showDeleteSuccess,
+        type = com.kutub.nexora.erp.ui.components.DialogType.SUCCESS,
+        title = "Deleted",
+        message = "Product deleted successfully.",
+        confirmText = "OK",
+        onConfirm = { showDeleteSuccess = false },
+        onDismiss = { showDeleteSuccess = false }
+    )
 
     Scaffold(floatingActionButton = {
         FloatingActionButton(
@@ -171,10 +191,35 @@ fun ProductCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (product.imageUrl != null) {
+                    AsyncImage(
+                        model = product.imageUrl,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = product.name,
                     style = MaterialTheme.typography.titleMedium,

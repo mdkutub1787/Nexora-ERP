@@ -26,6 +26,7 @@ import com.kutub.nexora.erp.utils.CurrencyUtils
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onLogout: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val isBiometricEnabled by viewModel.isBiometricEnabled.collectAsState()
@@ -121,6 +122,27 @@ fun SettingsScreen(
                 checked = currentLanguage == "bn",
                 onCheckedChange = { isBn -> viewModel.setLanguage(if (isBn) "bn" else "en") }
             )
+
+            Spacer(Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    viewModel.logout()
+                    onLogout()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.ExitToApp, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Logout", fontWeight = FontWeight.Bold)
+            }
         }
     }
 }

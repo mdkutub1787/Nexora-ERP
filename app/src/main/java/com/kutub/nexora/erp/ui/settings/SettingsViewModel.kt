@@ -42,4 +42,10 @@ class SettingsViewModel @Inject constructor(
     fun setBiometricEnabled(enabled: Boolean) {
         viewModelScope.launch { preferencesManager.setBiometricEnabled(enabled) }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            preferencesManager.logout()
+        }
+    }
 }

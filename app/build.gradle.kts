@@ -69,6 +69,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.splashscreen)
 
+    // Coil
+    implementation(libs.coil.compose)
+
     // Room Database
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

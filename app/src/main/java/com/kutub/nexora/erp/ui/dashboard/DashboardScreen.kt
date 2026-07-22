@@ -23,11 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import androidx.compose.material.icons.filled.AccountCircle
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     onNavigateToProducts: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val totalProducts by viewModel.totalProducts.collectAsState()
@@ -56,6 +59,9 @@ fun DashboardScreen(
             TopAppBar(
                 title = { Text("Dashboard", fontWeight = FontWeight.Bold) },
                 actions = {
+                    IconButton(onClick = onNavigateToProfile) {
+                        Icon(Icons.Default.AccountCircle, contentDescription = "Profile")
+                    }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }

@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -18,8 +20,15 @@ import androidx.compose.ui.unit.sp
 import com.kutub.nexora.erp.R
 import kotlinx.coroutines.delay
 
+import androidx.hilt.navigation.compose.hiltViewModel
+
 @Composable
-fun SplashScreen(onNavigateToLogin: () -> Unit) {
+fun SplashScreen(
+    onNavigateToLogin: () -> Unit,
+    onNavigateToDashboard: () -> Unit,
+    viewModel: SplashViewModel = hiltViewModel()
+) {
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     var startAnimation by remember { mutableStateOf(false) }
     
     val alphaAnim = animateFloatAsState(
@@ -35,7 +44,11 @@ fun SplashScreen(onNavigateToLogin: () -> Unit) {
     LaunchedEffect(key1 = true) {
         startAnimation = true
         delay(2500) // Hold the splash screen for 2.5 seconds
-        onNavigateToLogin()
+        if (isLoggedIn) {
+            onNavigateToDashboard()
+        } else {
+            onNavigateToLogin()
+        }
     }
 
     Box(
@@ -45,15 +58,22 @@ fun SplashScreen(onNavigateToLogin: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(id = R.drawable.splash_logo),
-                contentDescription = "Nexora ERP Logo",
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.6f)
+                    .size(150.dp)
                     .scale(scaleAnim.value)
-                    .alpha(alphaAnim.value),
-                contentScale = androidx.compose.ui.layout.ContentScale.FillWidth
-            )
+                    .alpha(alphaAnim.value)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.splash_logo),
+                    contentDescription = "Nexora ERP Logo",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                )
+            }
             
             Spacer(modifier = Modifier.height(24.dp))
             

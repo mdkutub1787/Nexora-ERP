@@ -12,6 +12,8 @@ import com.kutub.nexora.erp.ui.product.AddEditProductScreen
 import com.kutub.nexora.erp.ui.product.ProductListScreen
 import com.kutub.nexora.erp.ui.settings.SettingsScreen
 
+import com.kutub.nexora.erp.ui.profile.ProfileScreen
+
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
@@ -25,6 +27,11 @@ fun AppNavGraph(
             SplashScreen(
                 onNavigateToLogin = {
                     navController.navigate("auth_route") {
+                        popUpTo("splash_route") { inclusive = true }
+                    }
+                },
+                onNavigateToDashboard = {
+                    navController.navigate("dashboard_route") {
                         popUpTo("splash_route") { inclusive = true }
                     }
                 }
@@ -56,6 +63,19 @@ fun AppNavGraph(
                 },
                 onNavigateToSettings = {
                     navController.navigate("settings_route")
+                },
+                onNavigateToProfile = {
+                    navController.navigate("profile_route")
+                }
+            )
+        }
+        composable("profile_route") {
+            ProfileScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onLogout = {
+                    navController.navigate("auth_route") {
+                        popUpTo(0) { inclusive = true } // Clear entire back stack
+                    }
                 }
             )
         }
@@ -63,6 +83,11 @@ fun AppNavGraph(
             SettingsScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onLogout = {
+                    navController.navigate("auth_route") {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
