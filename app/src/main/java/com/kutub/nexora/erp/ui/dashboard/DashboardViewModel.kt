@@ -3,17 +3,19 @@ package com.kutub.nexora.erp.ui.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kutub.nexora.erp.data.repository.ProductRepository
+import com.kutub.nexora.erp.data.local.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
+
+    val userName: StateFlow<String> = preferencesManager.userNameFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "User")
 
     val totalProducts: StateFlow<Int> = productRepository.getProductsCount()
         .stateIn(
