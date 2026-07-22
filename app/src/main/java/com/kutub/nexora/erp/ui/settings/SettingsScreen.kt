@@ -23,6 +23,9 @@ import com.kutub.nexora.erp.utils.BiometricHelper
 import com.kutub.nexora.erp.utils.CurrencyUtils
 import com.kutub.nexora.erp.utils.LocaleHelper
 
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -42,7 +45,7 @@ fun SettingsScreen(
                 title = { Text("Settings", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -130,11 +133,25 @@ fun SettingsScreen(
 
             Spacer(Modifier.weight(1f))
 
-            Button(
-                onClick = {
+            var showLogoutDialog by remember { mutableStateOf(false) }
+
+            NexoraGlobalDialog(
+                showDialog = showLogoutDialog,
+                type = com.kutub.nexora.erp.ui.components.DialogType.WARNING,
+                title = "Logout",
+                message = "Are you sure you want to log out of Nexora ERP?",
+                confirmText = "Logout",
+                dismissText = "Cancel",
+                onConfirm = {
+                    showLogoutDialog = false
                     viewModel.logout()
                     onLogout()
                 },
+                onDismiss = { showLogoutDialog = false }
+            )
+
+            Button(
+                onClick = { showLogoutDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -144,7 +161,7 @@ fun SettingsScreen(
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.ExitToApp, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Logout", fontWeight = FontWeight.Bold)
             }
