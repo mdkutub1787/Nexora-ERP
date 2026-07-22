@@ -1,6 +1,7 @@
 package com.kutub.nexora.erp.ui.product
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,7 @@ fun AddEditProductScreen(
     var stock by remember { mutableStateOf("") }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 title = { Text("Add Product", fontWeight = FontWeight.Bold) },
@@ -36,13 +38,33 @@ fun AddEditProductScreen(
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
+        },
+        bottomBar = {
+            Box(modifier = Modifier.padding(16.dp)) {
+                Button(
+                    onClick = {
+                        if (name.isNotBlank() && price.isNotBlank() && stock.isNotBlank()) {
+                            viewModel.saveProduct(name, price, stock)
+                            onNavigateBack()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Save Product", fontSize = MaterialTheme.typography.titleMedium.fontSize)
+                }
+            }
         }
     ) { paddingValues ->
+        val scrollState = androidx.compose.foundation.rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
+                .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
             OutlinedTextField(
@@ -69,20 +91,6 @@ fun AddEditProductScreen(
                 shape = RoundedCornerShape(12.dp)
             )
             
-            Spacer(modifier = Modifier.weight(1f))
-            
-            Button(
-                onClick = {
-                    viewModel.insertMockProduct()
-                    onNavigateBack()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Save Product", fontSize = MaterialTheme.typography.titleMedium.fontSize)
-            }
         }
     }
 }

@@ -10,8 +10,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +29,41 @@ fun ProductListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+
+    var selectedProduct by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<ProductEntity?>(null) }
+    var showDeleteConfirm by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+
+    com.kutub.nexora.erp.ui.components.NexoraGlobalDialog(
+        showDialog = selectedProduct != null && !showDeleteConfirm,
+        type = com.kutub.nexora.erp.ui.components.DialogType.INFO,
+        title = selectedProduct?.name ?: "Product Details",
+        message = selectedProduct?.let {
+            "Price: $${it.price}\n" +
+            "Cost Price: $${it.costPrice}\n" +
+            "Stock: ${it.stockQuantity}\n" +
+            "Barcode: ${it.barcode}\n" +
+            "SKU: ${it.sku}"
+        } ?: "",
+        confirmText = "Close",
+        dismissText = "Delete",
+        onConfirm = { selectedProduct = null },
+        onDismiss = { showDeleteConfirm = true }
+    )
+
+    com.kutub.nexora.erp.ui.components.NexoraGlobalDialog(
+        showDialog = showDeleteConfirm,
+        type = com.kutub.nexora.erp.ui.components.DialogType.WARNING,
+        title = "Delete Product",
+        message = "Are you sure you want to delete ${selectedProduct?.name}?",
+        confirmText = "Delete",
+        dismissText = "Cancel",
+        onConfirm = {
+            selectedProduct?.let { viewModel.deleteProduct(it) }
+            showDeleteConfirm = false
+            selectedProduct = null
+        },
+        onDismiss = { showDeleteConfirm = false }
+    )
 
     Scaffold(
         floatingActionButton = {
@@ -86,7 +123,11 @@ fun ProductListScreen(
                     items(uiState.products) { product ->
                         ProductCard(
                             product = product,
-                            onDelete = { viewModel.deleteProduct(product) }
+                            onClick = { selectedProduct = product },
+                            onDelete = {
+                                selectedProduct = product
+                                showDeleteConfirm = true
+                            }
                         )
                     }
                 }
@@ -98,10 +139,13 @@ fun ProductListScreen(
 @Composable
 fun ProductCard(
     product: ProductEntity,
+    onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

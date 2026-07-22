@@ -1,5 +1,7 @@
 package com.kutub.nexora.erp.ui.dashboard
 
+import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
+import com.kutub.nexora.erp.ui.components.DialogType
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,25 +40,16 @@ fun DashboardScreen(
         showExitDialog = true
     }
 
-    if (showExitDialog) {
-        AlertDialog(
-            onDismissRequest = { showExitDialog = false },
-            title = { Text(text = "Exit App", fontWeight = FontWeight.Bold) },
-            text = { Text("Are you sure you want to exit Nexora ERP?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    (context as? android.app.Activity)?.finish()
-                }) {
-                    Text("Exit", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showExitDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
+    NexoraGlobalDialog(
+        showDialog = showExitDialog,
+        type = DialogType.WARNING,
+        title = "Exit App",
+        message = "Are you sure you want to exit Nexora ERP?",
+        confirmText = "Exit",
+        dismissText = "Cancel",
+        onConfirm = { (context as? android.app.Activity)?.finish() },
+        onDismiss = { showExitDialog = false }
+    )
 
     Scaffold(
         topBar = {

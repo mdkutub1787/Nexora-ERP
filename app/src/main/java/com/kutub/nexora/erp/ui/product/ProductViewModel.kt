@@ -43,17 +43,18 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-    // Temporary method for mock data insertion during testing
-    fun insertMockProduct() {
+    fun saveProduct(name: String, price: String, stock: String) {
+        if (name.isBlank() || price.isBlank() || stock.isBlank()) return
+        
         viewModelScope.launch {
             productRepository.insertProduct(
                 ProductEntity(
-                    name = "Mock Product " + (1000..9999).random(),
-                    barcode = "BAR" + (100000..999999).random(),
+                    name = name,
+                    barcode = "BAR" + (100000..999999).random(), // Generate random barcode for now
                     sku = "SKU" + (100..999).random(),
-                    price = (100..1000).random().toDouble(),
-                    costPrice = (50..800).random().toDouble(),
-                    stockQuantity = (10..100).random(),
+                    price = price.toDoubleOrNull() ?: 0.0,
+                    costPrice = (price.toDoubleOrNull() ?: 0.0) * 0.8, // Estimate cost
+                    stockQuantity = stock.toIntOrNull() ?: 0,
                     categoryId = null,
                     supplierId = null,
                     imageUrl = null
