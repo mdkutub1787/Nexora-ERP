@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -27,11 +28,17 @@ android {
     }
 
     signingConfigs {
+        val props = Properties()
+        val propFile = rootProject.file("local.properties")
+        if (propFile.exists()) {
+            props.load(propFile.inputStream())
+        }
+
         create("release") {
             storeFile = file("release-keystore.jks")
-            storePassword = "smarterp123"
-            keyAlias = "my-key-alias"
-            keyPassword = "smarterp123"
+            storePassword = props.getProperty("RELEASE_STORE_PASSWORD") ?: ""
+            keyAlias = props.getProperty("RELEASE_KEY_ALIAS") ?: ""
+            keyPassword = props.getProperty("RELEASE_KEY_PASSWORD") ?: ""
         }
     }
 
