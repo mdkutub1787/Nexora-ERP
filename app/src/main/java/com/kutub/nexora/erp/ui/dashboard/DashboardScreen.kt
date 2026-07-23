@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.kutub.nexora.erp.R
 import com.kutub.nexora.erp.ui.components.DialogType
 import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
+import com.kutub.nexora.erp.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +33,8 @@ fun DashboardScreen(
     onNavigateToSuppliers: () -> Unit,
     onNavigateToCategories: () -> Unit,
     onNavigateToSales: () -> Unit,
+    onNavigateToSalesHistory: () -> Unit,
+    onNavigateToReports: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToProfile: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
@@ -62,12 +65,39 @@ fun DashboardScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Column {
+                        Text(
+                            text = stringResource(R.string.welcome_back),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = userName,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* TODO: Notifications */ }) {
+                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 16.dp, start = 8.dp)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .clickable { onNavigateToProfile() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = userName.takeIf { it.isNotBlank() }?.substring(0, 1)?.uppercase() ?: "U",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -80,30 +110,15 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(horizontal = MaterialTheme.dimens.paddingLarge),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingLarge)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Welcome Header
-            Column {
-                Text(
-                    text = stringResource(R.string.welcome_back),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = userName,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.paddingTiny))
 
             // Quick Stats Summary
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMedium)
             ) {
                 DashboardCard(
                     modifier = Modifier.weight(1f),
@@ -131,9 +146,9 @@ fun DashboardScreen(
 
             // Actions Grid
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                columns = GridCells.Adaptive(minSize = MaterialTheme.dimens.gridCellMinSize),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMedium),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMedium),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 item {
@@ -145,7 +160,7 @@ fun DashboardScreen(
                 }
                 item {
                     ActionItem(
-                        title = "Categories",
+                        title = stringResource(R.string.categories),
                         icon = Icons.Default.Category,
                         onClick = onNavigateToCategories
                     )
@@ -166,9 +181,16 @@ fun DashboardScreen(
                 }
                 item {
                     ActionItem(
+                        title = stringResource(R.string.sales_history),
+                        icon = Icons.Default.History,
+                        onClick = onNavigateToSalesHistory
+                    )
+                }
+                item {
+                    ActionItem(
                         title = stringResource(R.string.reports),
                         icon = Icons.Default.BarChart,
-                        onClick = { /* TODO */ }
+                        onClick = onNavigateToReports
                     )
                 }
             }
@@ -187,21 +209,33 @@ fun DashboardCard(
     containerColor: Color,
     contentColor: Color
 ) {
-    Surface(
+    val dimens = MaterialTheme.dimens
+
+    Card(
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        color = containerColor,
+        shape = RoundedCornerShape(dimens.cornerRadiusLarge),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier
+                .padding(dimens.paddingMedium)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium)
         ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = contentColor,
-                modifier = Modifier.size(28.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(dimens.iconSizeExtraLarge)
+                    .background(Color.White.copy(alpha = 0.2f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier = Modifier.size(dimens.iconSizeMedium)
+                )
+            }
             Column {
                 Text(
                     text = value,
@@ -211,8 +245,9 @@ fun DashboardCard(
                 )
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = contentColor.copy(alpha = 0.8f)
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = contentColor.copy(alpha = 0.9f)
                 )
             }
         }
@@ -225,42 +260,46 @@ fun ActionItem(
     icon: ImageVector,
     onClick: () -> Unit
 ) {
+    val dimens = MaterialTheme.dimens
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(110.dp)
+            .height(120.dp)
             .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(dimens.cornerRadiusLarge),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(dimens.paddingMedium),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                    .size(dimens.iconSizeExtraLarge)
+                    .background(
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+                        RoundedCornerShape(dimens.cornerRadiusMedium)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     icon,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(dimens.iconSizeMedium)
                 )
             }
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }

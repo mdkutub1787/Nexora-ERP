@@ -1,21 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">নেক্সোরা ইআরপি</string>
+    <string name="app_name">Nexora ERP</string>
     <string name="dashboard">ড্যাশবোর্ড</string>
-    <string name="settings">সেটিংস</string>
     <string name="inventory">ইনভেন্টরি</string>
+    <string name="products">প্রোডাক্টস</string>
+    <string name="categories">ক্যাটাগরি</string>
+    <string name="suppliers">সাপ্লায়ার</string>
+    <string name="sales">সেলস (POS)</string>
+    <string name="sales_history">সেলস হিস্ট্রি</string>
+    <string name="reports">রিপোর্টস</string>
+    <string name="settings">সেটিংস</string>
     <string name="profile">প্রোফাইল</string>
-    <string name="logout">লগআউট</string>
-    <string name="welcome_back">স্বাগতম,</string>
-    <string name="quick_actions">দ্রুত কাজ</string>
-    <string name="products">পণ্যসমূহ</string>
-    <string name="suppliers">সরবরাহকারী</string>
-    <string name="sales">বিক্রয়</string>
-    <string name="reports">রিপোর্ট</string>
+    
+    <string name="welcome_back">স্বাগতম ফিরে আসার জন্য,</string>
+    <string name="quick_actions">কুইক অ্যাকশনস</string>
     <string name="in_stock">স্টক আছে</string>
     <string name="low_stock">স্টক কম</string>
+    
+    <string name="add_product">প্রোডাক্ট যোগ করুন</string>
+    <string name="edit_product">প্রোডাক্ট এডিট করুন</string>
+    <string name="product_name">প্রোডাক্টের নাম</string>
+    <string name="price">বিক্রয় মূল্য</string>
+    <string name="cost_price">ক্রয় মূল্য</string>
+    <string name="stock_quantity">স্টকের পরিমাণ</string>
+    
+    <string name="cart">কার্ট</string>
+    <string name="checkout">চেকআউট</string>
+    <string name="total">মোট</string>
+    <string name="subtotal">সাবটোটাল</string>
+    <string name="discount">ডিসকাউন্ট</string>
+    
     <string name="save">সেভ করুন</string>
     <string name="cancel">বাতিল</string>
-    <string name="edit">এডিট</string>
     <string name="delete">ডিলিট</string>
+    <string name="edit">এডিট</string>
+    <string name="logout">লগআউট</string>
 </resources>

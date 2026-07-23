@@ -124,6 +124,8 @@ fun AppNavGraph(
                     onNavigateToSuppliers = { navController.navigate("supplier_list_route") },
                     onNavigateToCategories = { navController.navigate("category_list_route") },
                     onNavigateToSales = { navController.navigate("pos_route") },
+                    onNavigateToSalesHistory = { navController.navigate("sales_history_route") },
+                    onNavigateToReports = { navController.navigate("reports_route") },
                     onNavigateToSettings = { navController.navigate("settings_route") },
                     onNavigateToProfile = { navController.navigate("profile_route") }
                 )
@@ -248,6 +250,36 @@ fun AppNavGraph(
                     onNavigateBack = {
                         navController.popBackStack()
                     }
+                )
+            }
+            
+            composable("sales_history_route") {
+                com.kutub.nexora.erp.ui.sales.SalesHistoryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToSaleDetail = { saleId ->
+                        navController.navigate("sale_detail_route/$saleId")
+                    }
+                )
+            }
+            
+            composable(
+                route = "sale_detail_route/{saleId}",
+                arguments = listOf(
+                    androidx.navigation.navArgument("saleId") {
+                        type = androidx.navigation.NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val saleId = backStackEntry.arguments?.getLong("saleId") ?: return@composable
+                com.kutub.nexora.erp.ui.sales.SaleDetailScreen(
+                    saleId = saleId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            
+            composable("reports_route") {
+                com.kutub.nexora.erp.ui.reports.ReportsScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }

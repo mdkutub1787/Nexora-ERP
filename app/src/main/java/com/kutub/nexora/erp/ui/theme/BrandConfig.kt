@@ -18,7 +18,7 @@ package com.kutub.nexora.erp.ui.theme
  */
 
 object BrandConfig {
-    const val APP_NAME = "Nexora ERP"
+    const val APP_NAME = "Nexora POS & Inventory"
     const val TAGLINE = "Empowering Enterprise Intelligence"
     
     // Design Tokens

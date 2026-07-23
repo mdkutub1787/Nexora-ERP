@@ -58,18 +58,19 @@ fun SettingsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
+        val dimens = com.kutub.nexora.erp.ui.theme.LocalDimens.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(20.dp)
+                .padding(dimens.paddingLarge)
         ) {
             Text(
                 text = "Security",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = dimens.paddingMedium)
             )
 
             SettingsToggleItem(
@@ -90,14 +91,14 @@ fun SettingsScreen(
                 }
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(dimens.paddingExtraLarge))
             
             Text(
                 text = "Preferences",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = dimens.paddingMedium)
             )
 
             SettingsCurrencyItem(
@@ -108,7 +109,7 @@ fun SettingsScreen(
                 onCurrencyChange = { viewModel.setCurrency(it) }
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(dimens.paddingLarge))
 
             SettingsToggleItem(
                 title = "Dark Mode",
@@ -118,7 +119,7 @@ fun SettingsScreen(
                 onCheckedChange = { isDark -> viewModel.setThemeMode(if (isDark) "dark" else "light") }
             )
             
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(dimens.paddingLarge))
 
             SettingsToggleItem(
                 title = "Bangla Language",
@@ -178,28 +179,29 @@ fun SettingsToggleItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val dimens = com.kutub.nexora.erp.ui.theme.LocalDimens.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(dimens.cornerRadiusMedium),
+        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(dimens.paddingLarge)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(dimens.cornerRadiusSmall)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             }
 
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(dimens.paddingLarge))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium)
@@ -223,6 +225,7 @@ fun SettingsCurrencyItem(
     currentCurrency: String,
     onCurrencyChange: (String) -> Unit
 ) {
+    val dimens = com.kutub.nexora.erp.ui.theme.LocalDimens.current
     var showDialog by remember { mutableStateOf(false) }
     val currencies = CurrencyUtils.currencies
     val currentLabel = currencies.find { it.first == currentCurrency }?.second ?: currentCurrency
@@ -232,25 +235,25 @@ fun SettingsCurrencyItem(
             .fillMaxWidth()
             .clickable { showDialog = true },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(dimens.cornerRadiusMedium),
+        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(dimens.paddingLarge)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(dimens.cornerRadiusSmall)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             }
 
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(dimens.paddingLarge))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium)
@@ -262,7 +265,7 @@ fun SettingsCurrencyItem(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = dimens.paddingMedium)
             )
         }
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.kutub.nexora.erp.data.model.ProductEntity
 import com.kutub.nexora.erp.data.model.SaleEntity
 import com.kutub.nexora.erp.data.model.SaleItemEntity
+import com.kutub.nexora.erp.data.local.PreferencesManager
 import com.kutub.nexora.erp.data.repository.ProductRepository
 import com.kutub.nexora.erp.data.repository.SaleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,8 +23,11 @@ data class CartItem(
 @HiltViewModel
 class PosViewModel @Inject constructor(
     private val productRepository: ProductRepository,
-    private val saleRepository: SaleRepository
+    private val saleRepository: SaleRepository,
+    preferencesManager: PreferencesManager
 ) : ViewModel() {
+
+    val currency = preferencesManager.currencyFlow
 
     private val _products = MutableStateFlow<List<ProductEntity>>(emptyList())
     val products: StateFlow<List<ProductEntity>> = _products.asStateFlow()
@@ -88,12 +92,12 @@ class PosViewModel @Inject constructor(
         _totalAmount.value = total
     }
 
-    fun checkout(customerName: String, discount: Double, onComplete: () -> Unit) {
+    fun checkout(customerName: String, discount: Double, onComplete: (SaleEntity, List<SaleItemEntity>) -> Unit) {
         val currentCart = _cartItems.value
         if (currentCart.isEmpty()) return
 
         val total = currentCart.sumOf { it.product.price * it.quantity }
-        val finalAmount = total - discount
+        val finalAmount = (total - discount).coerceAtLeast(0.0)
 
         viewModelScope.launch {
             val sale = SaleEntity(
@@ -114,9 +118,13 @@ class PosViewModel @Inject constructor(
                 )
             }
 
-            saleRepository.completeSale(sale, saleItems)
+            val saleId = saleRepository.completeSale(sale, saleItems)
             clearCart()
-            onComplete()
+            
+            // Pass the completed data back to the UI for the receipt
+            val completedSale = sale.copy(id = saleId)
+            val completedItems = saleItems.map { it.copy(saleId = saleId) }
+            onComplete(completedSale, completedItems)
         }
     }
 }

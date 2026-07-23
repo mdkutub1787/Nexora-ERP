@@ -78,7 +78,7 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "Nexora ERP",
+                text = stringResource(com.kutub.nexora.erp.R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,

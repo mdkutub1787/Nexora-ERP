@@ -8,7 +8,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -61,6 +63,7 @@ private val LightColorScheme = lightColorScheme(
 fun NexoraERPTheme(
     themeMode: String = "system",
     dynamicColor: Boolean = false,
+    windowWidthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
     content: @Composable () -> Unit
 ) {
     val darkTheme = when (themeMode) {
@@ -78,6 +81,13 @@ fun NexoraERPTheme(
         else -> LightColorScheme
     }
 
+    val dimens = when (windowWidthSizeClass) {
+        WindowWidthSizeClass.Compact -> CompactDimens
+        WindowWidthSizeClass.Medium -> MediumDimens
+        WindowWidthSizeClass.Expanded -> ExpandedDimens
+        else -> CompactDimens
+    }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -87,9 +97,15 @@ fun NexoraERPTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalDimens provides dimens) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
+
+val MaterialTheme.dimens: Dimens
+    @Composable
+    get() = LocalDimens.current
