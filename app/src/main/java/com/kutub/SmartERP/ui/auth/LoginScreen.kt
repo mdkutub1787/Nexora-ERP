@@ -55,8 +55,8 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
-    var email by remember { mutableStateOf("mdkutub150@gmail.com") }
-    var password by remember { mutableStateOf("000000") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var showLoginSuccess by remember { mutableStateOf(false) }
     var loginErrorMessage by remember { mutableStateOf<String?>(null) }
@@ -309,7 +309,14 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     Button(
-                        onClick = { showLoginSuccess = true },
+                        onClick = { 
+                            if (email.isNotBlank() && password.isNotBlank()) {
+                                showLoginSuccess = true
+                            } else {
+                                // Optional: You could set an error message here
+                                // loginErrorMessage = "Please enter email and password"
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(54.dp)
