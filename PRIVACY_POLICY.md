@@ -1,6 +1,6 @@
 # Privacy Policy for Smart ERP
 
-**Effective Date:** October 26, 2023
+**Effective Date:** July 23, 2026
 
 ## 1. Introduction
 Smart ERP ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.
