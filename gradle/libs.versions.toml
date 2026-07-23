@@ -72,11 +72,12 @@ androidx-biometric = { group = "androidx.biometric", name = "biometric", version
 # Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
-# CameraX
+# CameraX & MLKit Scanner
 camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
 camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
 camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+play-services-mlkit-barcode-scanning = { module = "com.google.android.gms:play-services-mlkit-barcode-scanning", version = "18.3.1" }
 
 # ZXing Barcode Scanner
 zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing" }

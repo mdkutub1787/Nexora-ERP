@@ -81,7 +81,16 @@ fun SettingsScreen(
                 onCheckedChange = { isChecked ->
                     if (isChecked) {
                         if (BiometricHelper.isBiometricAvailable(context)) {
-                            viewModel.setBiometricEnabled(true)
+                            // Professional Verification before enabling
+                            (context as? androidx.fragment.app.FragmentActivity)?.let { activity ->
+                                BiometricHelper.showBiometricPrompt(
+                                    activity = activity,
+                                    onSuccess = { viewModel.setBiometricEnabled(true) },
+                                    onError = { 
+                                        Toast.makeText(context, "Authentication failed. Could not enable biometric.", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
                         } else {
                             Toast.makeText(context, "Biometric setup is not available on this device.", Toast.LENGTH_SHORT).show()
                         }
@@ -180,11 +189,13 @@ fun SettingsToggleItem(
     onCheckedChange: (Boolean) -> Unit
 ) {
     val dimens = com.kutub.nexora.erp.ui.theme.LocalDimens.current
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(dimens.cornerRadiusMedium),
-        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
+        shape = RoundedCornerShape(22.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -194,23 +205,24 @@ fun SettingsToggleItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(dimens.cornerRadiusSmall)),
+                    .size(42.dp)
+                    .background(com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(alpha = 0.12f), androidx.compose.foundation.shape.CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                Icon(icon, null, tint = com.kutub.nexora.erp.ui.theme.PrimaryIndigo, modifier = Modifier.size(20.dp))
             }
 
             Spacer(Modifier.width(dimens.paddingLarge))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium)
+                Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Switch(
                 checked = checked,
-                onCheckedChange = onCheckedChange
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = com.kutub.nexora.erp.ui.theme.PrimaryIndigo)
             )
         }
     }
@@ -235,8 +247,9 @@ fun SettingsCurrencyItem(
             .fillMaxWidth()
             .clickable { showDialog = true },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(dimens.cornerRadiusMedium),
-        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
+        shape = RoundedCornerShape(22.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -246,11 +259,11 @@ fun SettingsCurrencyItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(dimens.cornerRadiusSmall)),
+                    .size(42.dp)
+                    .background(com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(alpha = 0.12f), androidx.compose.foundation.shape.CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                Icon(icon, null, tint = com.kutub.nexora.erp.ui.theme.PrimaryIndigo, modifier = Modifier.size(20.dp))
             }
 
             Spacer(Modifier.width(dimens.paddingLarge))

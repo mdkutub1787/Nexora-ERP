@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,13 +30,13 @@ import com.kutub.nexora.erp.ui.settings.SettingsScreen
 
 @Composable
 fun AppNavGraph(
-    navController: NavHostController,
-    startDestination: String = "splash_route"
+    navController: NavHostController, startDestination: String = "splash_route"
 ) {
     val bottomNavItems = listOf(
         BottomNavItem.Dashboard,
-        BottomNavItem.Products,
-        BottomNavItem.Profile,
+        BottomNavItem.Inventory,
+        BottomNavItem.POS,
+        BottomNavItem.History,
         BottomNavItem.Settings
     )
 
@@ -47,76 +48,70 @@ fun AppNavGraph(
 
             AnimatedVisibility(
                 visible = shouldShowBottomBar,
-                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+                enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+                exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
             ) {
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 8.dp,
-                    windowInsets = NavigationBarDefaults.windowInsets
+                    tonalElevation = 8.dp
                 ) {
                     bottomNavItems.forEach { screen ->
                         NavigationBarItem(
                             icon = { Icon(screen.icon, contentDescription = null) },
-                            label = { Text(screen.title, style = MaterialTheme.typography.labelSmall) },
+                            label = {
+                                Text(
+                                    screen.title, style = MaterialTheme.typography.labelSmall
+                                )
+                            },
                             selected = currentRoute == screen.route,
                             onClick = {
                                 if (currentRoute != screen.route) {
                                     navController.navigate(screen.route) {
-                                        popUpTo("dashboard_route") {
+                                        popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
                                         }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
                                 }
-                            }
-                        )
+                            })
                     }
                 }
             }
-        },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        }, contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = startDestination,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(bottom = innerPadding.calculateBottomPadding()) // Only pad the bottom
         ) {
             composable("splash_route") {
-                SplashScreen(
-                    onNavigateToLogin = {
-                        navController.navigate("auth_route") {
-                            popUpTo("splash_route") { inclusive = true }
-                        }
-                    },
-                    onNavigateToDashboard = {
-                        navController.navigate("dashboard_route") {
-                            popUpTo("splash_route") { inclusive = true }
-                        }
+                SplashScreen(onNavigateToLogin = {
+                    navController.navigate("auth_route") {
+                        popUpTo("splash_route") { inclusive = true }
                     }
-                )
+                }, onNavigateToDashboard = {
+                    navController.navigate("dashboard_route") {
+                        popUpTo("splash_route") { inclusive = true }
+                    }
+                })
             }
             composable("auth_route") {
-                LoginScreen(
-                    onNavigateToDashboard = {
-                        navController.navigate("dashboard_route") {
-                            popUpTo("auth_route") { inclusive = true }
-                        }
-                    },
-                    onNavigateToRegister = {
-                        navController.navigate("register_route")
+                LoginScreen(onNavigateToDashboard = {
+                    navController.navigate("dashboard_route") {
+                        popUpTo("auth_route") { inclusive = true }
                     }
-                )
+                }, onNavigateToRegister = {
+                    navController.navigate("register_route")
+                })
             }
             composable("register_route") {
                 RegisterScreen(
                     onNavigateToLogin = {
                         navController.popBackStack()
-                    }
-                )
+                    })
             }
             composable("dashboard_route") {
                 DashboardScreen(
@@ -127,36 +122,28 @@ fun AppNavGraph(
                     onNavigateToSalesHistory = { navController.navigate("sales_history_route") },
                     onNavigateToReports = { navController.navigate("reports_route") },
                     onNavigateToSettings = { navController.navigate("settings_route") },
-                    onNavigateToProfile = { navController.navigate("profile_route") }
-                )
+                    onNavigateToProfile = { navController.navigate("profile_route") })
             }
-            
+
             composable("pos_route") {
                 com.kutub.nexora.erp.ui.pos.PosScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                    onNavigateBack = { navController.popBackStack() })
             }
             composable("profile_route") {
-                ProfileScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onLogout = {
-                        navController.navigate("auth_route") {
-                            popUpTo(0) { inclusive = true } // Clear entire back stack
-                        }
+                ProfileScreen(onNavigateBack = { navController.popBackStack() }, onLogout = {
+                    navController.navigate("auth_route") {
+                        popUpTo(0) { inclusive = true } // Clear entire back stack
                     }
-                )
+                })
             }
             composable("settings_route") {
-                SettingsScreen(
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    },
-                    onLogout = {
-                        navController.navigate("auth_route") {
-                            popUpTo(0) { inclusive = true }
-                        }
+                SettingsScreen(onNavigateBack = {
+                    navController.popBackStack()
+                }, onLogout = {
+                    navController.navigate("auth_route") {
+                        popUpTo(0) { inclusive = true }
                     }
-                )
+                })
             }
             composable("product_list_route") {
                 ProductListScreen(
@@ -166,29 +153,23 @@ fun AppNavGraph(
                         } else {
                             navController.navigate("add_edit_product_route")
                         }
-                    }
-                )
+                    })
             }
             composable(
-                route = "add_edit_product_route?productId={productId}",
-                arguments = listOf(
-                    androidx.navigation.navArgument("productId") {
-                        type = androidx.navigation.NavType.StringType
-                        nullable = true
-                    }
-                )
-            ) { backStackEntry ->
+                route = "add_edit_product_route?productId={productId}", arguments = listOf(
+                androidx.navigation.navArgument("productId") {
+                    type = androidx.navigation.NavType.StringType
+                    nullable = true
+                })) { backStackEntry ->
                 val productIdStr = backStackEntry.arguments?.getString("productId")
                 val productId = productIdStr?.toLongOrNull()
-                
+
                 AddEditProductScreen(
-                    productId = productId,
-                    onNavigateBack = {
+                    productId = productId, onNavigateBack = {
                         navController.popBackStack()
-                    }
-                )
+                    })
             }
-            
+
             composable("category_list_route") {
                 com.kutub.nexora.erp.ui.category.CategoryListScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -198,8 +179,7 @@ fun AppNavGraph(
                         } else {
                             navController.navigate("add_edit_category_route")
                         }
-                    }
-                )
+                    })
             }
             composable(
                 route = "add_edit_category_route?categoryId={categoryId}",
@@ -207,18 +187,14 @@ fun AppNavGraph(
                     androidx.navigation.navArgument("categoryId") {
                         type = androidx.navigation.NavType.StringType
                         nullable = true
-                    }
-                )
-            ) { backStackEntry ->
+                    })) { backStackEntry ->
                 val categoryIdStr = backStackEntry.arguments?.getString("categoryId")
                 val categoryId = categoryIdStr?.toLongOrNull()
-                
+
                 com.kutub.nexora.erp.ui.category.AddEditCategoryScreen(
-                    categoryId = categoryId,
-                    onNavigateBack = {
+                    categoryId = categoryId, onNavigateBack = {
                         navController.popBackStack()
-                    }
-                )
+                    })
             }
 
             composable("supplier_list_route") {
@@ -230,8 +206,7 @@ fun AppNavGraph(
                         } else {
                             navController.navigate("add_edit_supplier_route")
                         }
-                    }
-                )
+                    })
             }
             composable(
                 route = "add_edit_supplier_route?supplierId={supplierId}",
@@ -239,48 +214,37 @@ fun AppNavGraph(
                     androidx.navigation.navArgument("supplierId") {
                         type = androidx.navigation.NavType.StringType
                         nullable = true
-                    }
-                )
-            ) { backStackEntry ->
+                    })) { backStackEntry ->
                 val supplierIdStr = backStackEntry.arguments?.getString("supplierId")
                 val supplierId = supplierIdStr?.toLongOrNull()
-                
+
                 com.kutub.nexora.erp.ui.supplier.AddEditSupplierScreen(
-                    supplierId = supplierId,
-                    onNavigateBack = {
+                    supplierId = supplierId, onNavigateBack = {
                         navController.popBackStack()
-                    }
-                )
+                    })
             }
-            
+
             composable("sales_history_route") {
                 com.kutub.nexora.erp.ui.sales.SalesHistoryScreen(
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToSaleDetail = { saleId ->
                         navController.navigate("sale_detail_route/$saleId")
-                    }
-                )
+                    })
             }
-            
+
             composable(
-                route = "sale_detail_route/{saleId}",
-                arguments = listOf(
-                    androidx.navigation.navArgument("saleId") {
-                        type = androidx.navigation.NavType.LongType
-                    }
-                )
-            ) { backStackEntry ->
+                route = "sale_detail_route/{saleId}", arguments = listOf(
+                androidx.navigation.navArgument("saleId") {
+                    type = androidx.navigation.NavType.LongType
+                })) { backStackEntry ->
                 val saleId = backStackEntry.arguments?.getLong("saleId") ?: return@composable
                 com.kutub.nexora.erp.ui.sales.SaleDetailScreen(
-                    saleId = saleId,
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                    saleId = saleId, onNavigateBack = { navController.popBackStack() })
             }
-            
+
             composable("reports_route") {
                 com.kutub.nexora.erp.ui.reports.ReportsScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                    onNavigateBack = { navController.popBackStack() })
             }
         }
     }

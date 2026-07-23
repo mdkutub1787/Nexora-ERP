@@ -1,13 +1,16 @@
 package com.kutub.nexora.erp.ui.dashboard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,13 +21,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kutub.nexora.erp.R
-import com.kutub.nexora.erp.ui.components.DialogType
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
+import com.kutub.nexora.erp.ui.components.DialogType
+import androidx.compose.ui.graphics.Brush
+import com.kutub.nexora.erp.ui.theme.HeroGradient
 import com.kutub.nexora.erp.ui.theme.dimens
+import com.kutub.nexora.erp.data.model.SaleEntity
+import java.text.SimpleDateFormat
+import java.util.Locale
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +55,9 @@ fun DashboardScreen(
     val totalProducts by viewModel.totalProducts.collectAsState()
     val lowStockCount by viewModel.lowStockCount.collectAsState()
     val userName by viewModel.userName.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val todayRevenue by viewModel.todayRevenue.collectAsState()
+    val recentSales by viewModel.recentSales.collectAsState()
 
     var showExitDialog by remember { mutableStateOf(false) }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -53,7 +69,7 @@ fun DashboardScreen(
     NexoraGlobalDialog(
         showDialog = showExitDialog,
         type = DialogType.WARNING,
-        title = stringResource(R.string.logout), // Using logout as exit for now or add exit_app
+        title = stringResource(R.string.logout),
         message = "Are you sure you want to exit Nexora ERP?",
         confirmText = "Exit",
         dismissText = stringResource(R.string.cancel),
@@ -68,240 +84,261 @@ fun DashboardScreen(
                     Column {
                         Text(
                             text = stringResource(R.string.welcome_back),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = userName,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Notifications */ }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
+                    IconButton(onClick = { /* Notifications */ }) {
+                        Icon(Icons.Default.Notifications, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 16.dp, start = 8.dp)
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .clickable { onNavigateToProfile() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = userName.takeIf { it.isNotBlank() }?.substring(0, 1)?.uppercase() ?: "U",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                    IconButton(onClick = onNavigateToProfile) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    userName.take(1).uppercase(),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
-    ) { paddingValues ->
-        Column(
+    ) { padding ->
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = MaterialTheme.dimens.paddingLarge),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingLarge)
+                .padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.paddingTiny))
-
-            // Quick Stats Summary
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMedium)
-            ) {
-                DashboardCard(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.in_stock),
-                    value = totalProducts.toString(),
-                    icon = Icons.Default.Inventory2,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                DashboardCard(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.low_stock),
-                    value = lowStockCount.toString(),
-                    icon = Icons.Default.ReportProblem,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+            item {
+                BusinessOverviewBanner(
+                    totalProducts = totalProducts,
+                    lowStock = lowStockCount,
+                    revenue = todayRevenue,
+                    currency = currency,
+                    onPosClick = onNavigateToSales
                 )
             }
 
-            Text(
-                stringResource(R.string.quick_actions),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            // Actions Grid
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = MaterialTheme.dimens.gridCellMinSize),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMedium),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMedium),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    ActionItem(
-                        title = stringResource(R.string.products),
-                        icon = Icons.Default.Inventory,
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatusCard(
+                        title = "Inventory",
+                        value = "$totalProducts Items",
+                        icon = Icons.Default.Inventory2,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToProducts
+                    )
+                    StatusCard(
+                        title = "Low Stock",
+                        value = "$lowStockCount Alert",
+                        icon = Icons.Default.Warning,
+                        color = com.kutub.nexora.erp.ui.theme.ExpenseRed,
+                        modifier = Modifier.weight(1f),
                         onClick = onNavigateToProducts
                     )
                 }
-                item {
-                    ActionItem(
-                        title = stringResource(R.string.categories),
-                        icon = Icons.Default.Category,
-                        onClick = onNavigateToCategories
-                    )
+            }
+
+            item {
+                Text(
+                    text = stringResource(R.string.quick_actions),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            item {
+                androidx.compose.foundation.lazy.LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 8.dp)
+                ) {
+                    item { QuickActionChip("Inventory", Icons.Default.Inventory, onNavigateToProducts) }
+                    item { QuickActionChip("POS", Icons.Default.PointOfSale, onNavigateToSales) }
+                    item { QuickActionChip("History", Icons.Default.History, onNavigateToSalesHistory) }
+                    item { QuickActionChip("Suppliers", Icons.Default.LocalShipping, onNavigateToSuppliers) }
+                    item { QuickActionChip("Categories", Icons.Default.Category, onNavigateToCategories) }
+                    item { QuickActionChip("Reports", Icons.Default.BarChart, onNavigateToReports) }
                 }
-                item {
-                    ActionItem(
-                        title = stringResource(R.string.suppliers),
-                        icon = Icons.Default.LocalShipping,
-                        onClick = onNavigateToSuppliers
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Recent Transactions",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
+                    TextButton(onClick = onNavigateToSalesHistory) {
+                        Text("View All")
+                    }
                 }
+            }
+
+            if (recentSales.isEmpty()) {
                 item {
-                    ActionItem(
-                        title = stringResource(R.string.sales),
-                        icon = Icons.Default.PointOfSale,
-                        onClick = onNavigateToSales
-                    )
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Text("No recent sales recorded", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
-                item {
-                    ActionItem(
-                        title = stringResource(R.string.sales_history),
-                        icon = Icons.Default.History,
-                        onClick = onNavigateToSalesHistory
-                    )
-                }
-                item {
-                    ActionItem(
-                        title = stringResource(R.string.reports),
-                        icon = Icons.Default.BarChart,
-                        onClick = onNavigateToReports
-                    )
+            } else {
+                items(recentSales) { sale ->
+                    RecentSaleRow(sale, currency)
                 }
             }
             
-            Spacer(modifier = Modifier.weight(1f))
+            item { Spacer(Modifier.height(40.dp)) }
         }
     }
 }
 
 @Composable
-fun DashboardCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    value: String,
-    icon: ImageVector,
-    containerColor: Color,
-    contentColor: Color
+fun BusinessOverviewBanner(
+    totalProducts: Int,
+    lowStock: Int,
+    revenue: Double,
+    currency: String,
+    onPosClick: () -> Unit
 ) {
-    val dimens = MaterialTheme.dimens
-
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(dimens.cornerRadiusLarge),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(dimens.paddingMedium)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(dimens.iconSizeExtraLarge)
-                    .background(Color.White.copy(alpha = 0.2f), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = contentColor,
-                    modifier = Modifier.size(dimens.iconSizeMedium)
-                )
-            }
-            Column {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = contentColor
-                )
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = contentColor.copy(alpha = 0.9f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ActionItem(
-    title: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    val dimens = MaterialTheme.dimens
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(dimens.cornerRadiusLarge),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
+            .height(180.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(dimens.paddingMedium),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+        Box(modifier = Modifier.fillMaxSize().background(HeroGradient)) {
+            Column(
+                modifier = Modifier.padding(24.dp).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column {
+                        Text("Total Revenue", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelLarge)
+                        Text("$currency${String.format("%.2f", revenue)}", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    }
+                    IconButton(onClick = onPosClick, modifier = Modifier.background(Color.White.copy(alpha = 0.2f), CircleShape)) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = Color.White)
+                    }
+                }
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Column {
+                        Text("Items in Stock", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelSmall)
+                        Text("$totalProducts", color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        if (lowStock > 0) {
+                            Text("($lowStock low stock items)", color = Color.White.copy(alpha = 0.9f), style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                    Button(
+                        onClick = onPosClick,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = com.kutub.nexora.erp.ui.theme.PrimaryIndigo),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text("Open POS", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+            
+            // Decorative circle
             Box(
                 modifier = Modifier
-                    .size(dimens.iconSizeExtraLarge)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
-                        RoundedCornerShape(dimens.cornerRadiusMedium)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(dimens.iconSizeMedium)
-                )
-            }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                    .align(Alignment.TopEnd)
+                    .offset(x = 30.dp, y = (-30).dp)
+                    .size(120.dp)
+                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
             )
         }
+    }
+}
+
+@Composable
+fun StatusCard(
+    title: String,
+    value: String,
+    icon: ImageVector,
+    color: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Box(modifier = Modifier.size(36.dp).background(color.copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(18.dp))
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+fun QuickActionChip(title: String, icon: ImageVector, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+    ) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(8.dp))
+            Text(title, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Medium)
+        }
+    }
+}
+
+@Composable
+fun RecentSaleRow(sale: SaleEntity, currency: String) {
+    val dateFormat = SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault())
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.size(44.dp).background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f), CircleShape), contentAlignment = Alignment.Center) {
+            Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, modifier = Modifier.size(22.dp), tint = MaterialTheme.colorScheme.primary)
+        }
+        Spacer(Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text("Sale #${sale.id}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text(dateFormat.format(sale.saleDate), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Text("$currency${String.format("%.2f", sale.finalAmount)}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = com.kutub.nexora.erp.ui.theme.IncomeGreen)
     }
 }

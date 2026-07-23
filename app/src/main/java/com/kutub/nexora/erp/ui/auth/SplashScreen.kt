@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,12 +31,11 @@ fun SplashScreen(
 ) {
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     var startAnimation by remember { mutableStateOf(false) }
-    
+
     val alphaAnim = animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 1500)
+        targetValue = if (startAnimation) 1f else 0f, animationSpec = tween(durationMillis = 1500)
     )
-    
+
     val scaleAnim = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0.5f,
         animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing)
@@ -74,9 +74,9 @@ fun SplashScreen(
                     contentScale = androidx.compose.ui.layout.ContentScale.Fit
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text(
                 text = stringResource(com.kutub.nexora.erp.R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge,
@@ -85,9 +85,9 @@ fun SplashScreen(
                 fontSize = 36.sp,
                 modifier = Modifier.alpha(alphaAnim.value)
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Smart. Scalable. Seamless.",
                 style = MaterialTheme.typography.bodyLarge,

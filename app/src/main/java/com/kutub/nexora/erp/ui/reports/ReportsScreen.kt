@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -27,6 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+
+import com.kutub.nexora.erp.ui.theme.HeroGradient
+import com.kutub.nexora.erp.ui.theme.PrimaryIndigo
+import com.kutub.nexora.erp.ui.theme.IncomeGreen
+import com.kutub.nexora.erp.ui.theme.ExpenseRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,61 +67,118 @@ fun ReportsScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            // Overview Cards
-            Text("Sales Overview", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ReportSummaryCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Today's Revenue",
-                    value = "${currency}${todayRevenue}",
-                    icon = Icons.Default.TrendingUp,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    onColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                ReportSummaryCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Total Revenue",
-                    value = "${currency}${totalRevenue}",
-                    icon = Icons.Default.AttachMoney,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    onColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-            
-            ReportSummaryCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = "Total Sales Transactions",
-                value = totalSalesCount.toString(),
-                icon = Icons.Default.PointOfSale,
-                color = MaterialTheme.colorScheme.tertiaryContainer,
-                onColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Weekly Revenue Chart", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            
-            // Bar Chart
-            Card(
+            // Hero Analytics Banner
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    .height(140.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(HeroGradient)
+                    .padding(20.dp)
             ) {
-                Box(modifier = Modifier.padding(24.dp)) {
-                    WeeklyBarChart(
-                        data = weeklyRevenue,
-                        barColor = MaterialTheme.colorScheme.primary
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Financial Performance",
+                        color = Color.White.copy(alpha = 0.85f),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "${currency}${totalRevenue}",
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Black
+                    )
+                    Text(
+                        text = "Total Lifetime Revenue",
+                        color = Color.White.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
+
+            Text("Sales Overview", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                ReportSummaryCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Today's Sales",
+                    value = "${currency}${todayRevenue}",
+                    icon = Icons.Default.TrendingUp,
+                    color = IncomeGreen.copy(alpha = 0.12f),
+                    onColor = IncomeGreen
+                )
+                ReportSummaryCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Total Sales Count",
+                    value = totalSalesCount.toString(),
+                    icon = Icons.Default.PointOfSale,
+                    color = PrimaryIndigo.copy(alpha = 0.12f),
+                    onColor = PrimaryIndigo
+                )
+            }
+
+            Text("Weekly Revenue Chart", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    val maxVal = weeklyRevenue.maxOrNull()?.coerceAtLeast(1.0) ?: 1.0
+                    val dayLabels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        weeklyRevenue.forEachIndexed { index, amount ->
+                            val heightRatio = (amount / maxVal).toFloat()
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Bottom,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = if (amount > 0) "${currency}${amount.toInt()}" else "",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = PrimaryIndigo
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .fillMaxHeight(heightRatio.coerceAtLeast(0.08f))
+                                        .background(
+                                            com.kutub.nexora.erp.ui.theme.HeroGradient,
+                                            RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                                        )
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = dayLabels.getOrElse(index) { "" },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -131,77 +194,27 @@ fun ReportSummaryCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = color),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, onColor.copy(alpha = 0.2f))
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(onColor.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+                    .size(44.dp)
+                    .background(onColor.copy(alpha = 0.15f), androidx.compose.foundation.shape.CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = onColor)
+                Icon(icon, contentDescription = null, tint = onColor, modifier = Modifier.size(22.dp))
             }
             Column {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = onColor
-                )
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = onColor.copy(alpha = 0.8f)
-                )
+                Text(text = value, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, color = onColor)
+                Text(text = title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = onColor.copy(alpha = 0.85f))
             }
-        }
-    }
-}
-
-@Composable
-fun WeeklyBarChart(
-    data: List<Double>,
-    barColor: Color
-) {
-    if (data.isEmpty() || data.size != 7) return
-    
-    val maxData = data.maxOrNull() ?: 0.0
-    val maxBarHeight = if (maxData == 0.0) 1.0 else maxData // Prevent division by zero
-
-    val calendar = Calendar.getInstance()
-    val daysOfWeek = mutableListOf<String>()
-    val format = SimpleDateFormat("EEE", Locale.getDefault())
-    for (i in 6 downTo 0) {
-        calendar.timeInMillis = System.currentTimeMillis()
-        calendar.add(Calendar.DAY_OF_YEAR, -i)
-        daysOfWeek.add(format.format(calendar.time))
-    }
-
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val barWidth = size.width / (data.size * 2)
-        val spacing = barWidth
-
-        data.forEachIndexed { index, value ->
-            val barHeight = (value / maxBarHeight) * (size.height * 0.8) // Use 80% height for bars
-            val xOffset = index * (barWidth + spacing) + spacing / 2
-            val yOffset = size.height - barHeight.toFloat() - 30f // Leave space for text at bottom
-
-            drawRoundRect(
-                color = if (value == maxData && maxData > 0) barColor else barColor.copy(alpha = 0.5f),
-                topLeft = Offset(xOffset, yOffset),
-                size = Size(barWidth, barHeight.toFloat()),
-                cornerRadius = CornerRadius(16f, 16f)
-            )
-            
-            // Note: drawing text in native Canvas requires TextMeasurer in modern compose, 
-            // but for simplicity we keep it as a beautiful visual chart without bottom labels for now,
-            // or we can just rely on the visual trend.
         }
     }
 }

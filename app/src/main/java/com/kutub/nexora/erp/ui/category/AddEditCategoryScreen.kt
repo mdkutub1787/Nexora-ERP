@@ -18,9 +18,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditCategoryScreen(
-    categoryId: Long?,
-    onNavigateBack: () -> Unit,
-    viewModel: CategoryViewModel = hiltViewModel()
+    categoryId: Long?, onNavigateBack: () -> Unit, viewModel: CategoryViewModel = hiltViewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -50,24 +48,25 @@ fun AddEditCategoryScreen(
         onDismiss = {
             showSaveSuccess = false
             onNavigateBack()
-        }
-    )
+        })
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (categoryId != null) "Edit Category" else "Add Category", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                title = {
+                Text(
+                    if (categoryId != null) "Edit Category" else "Add Category",
+                    fontWeight = FontWeight.Bold
                 )
+            }, navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background
             )
-        }
-    ) { paddingValues ->
+            )
+        }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,29 +101,31 @@ fun AddEditCategoryScreen(
                         coroutineScope.launch {
                             if (categoryId != null) {
                                 viewModel.getCategoryById(categoryId)?.let {
-                                    viewModel.updateCategory(it.copy(
-                                        name = name,
-                                        description = description.takeIf { d -> d.isNotBlank() },
-                                        updatedAt = System.currentTimeMillis()
-                                    ))
+                                    viewModel.updateCategory(
+                                        it.copy(
+                                            name = name,
+                                            description = description.takeIf { d -> d.isNotBlank() },
+                                            updatedAt = System.currentTimeMillis()
+                                        )
+                                    )
                                     showSaveSuccess = true
                                 }
                             } else {
                                 viewModel.insertCategory(
                                     name = name,
-                                    description = description.takeIf { it.isNotBlank() }
-                                )
+                                    description = description.takeIf { it.isNotBlank() })
                                 showSaveSuccess = true
                             }
                         }
                     }
-                },
-                modifier = Modifier
+                }, modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                enabled = name.isNotBlank()
+                    .height(56.dp), enabled = name.isNotBlank()
             ) {
-                Text(if (categoryId != null) "Update Category" else "Save Category", fontWeight = FontWeight.Bold)
+                Text(
+                    if (categoryId != null) "Update Category" else "Save Category",
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

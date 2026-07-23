@@ -106,14 +106,14 @@ fun ProfileScreen(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(com.kutub.nexora.erp.ui.theme.HeroGradient),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = userName.takeIf { it.isNotBlank() }?.substring(0, 1)?.uppercase() ?: "U",
                     style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    fontWeight = FontWeight.Black,
+                    color = Color.White
                 )
                 if (isEditing) {
                     Box(
@@ -121,7 +121,7 @@ fun ProfileScreen(
                             .align(Alignment.BottomEnd)
                             .offset(x = (-4).dp, y = (-4).dp)
                             .size(36.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape),
+                            .background(com.kutub.nexora.erp.ui.theme.PrimaryIndigo, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))

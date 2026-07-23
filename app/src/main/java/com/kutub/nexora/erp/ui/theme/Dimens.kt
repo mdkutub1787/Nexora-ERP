@@ -13,20 +13,21 @@ data class Dimens(
     val paddingExtraLarge: Dp = 32.dp,
     val paddingHuge: Dp = 48.dp,
     
-    val cornerRadiusSmall: Dp = 8.dp,
-    val cornerRadiusMedium: Dp = 16.dp,
+    val cornerRadiusSmall: Dp = 10.dp,
+    val cornerRadiusMedium: Dp = 18.dp,
     val cornerRadiusLarge: Dp = 24.dp,
+    val cornerRadiusExtraLarge: Dp = 32.dp,
     
-    val iconSizeSmall: Dp = 16.dp,
+    val iconSizeSmall: Dp = 18.dp,
     val iconSizeMedium: Dp = 24.dp,
-    val iconSizeLarge: Dp = 32.dp,
-    val iconSizeExtraLarge: Dp = 48.dp,
+    val iconSizeLarge: Dp = 36.dp,
+    val iconSizeExtraLarge: Dp = 52.dp,
     
-    val buttonHeight: Dp = 50.dp,
-    val cardElevation: Dp = 4.dp,
+    val buttonHeight: Dp = 52.dp,
+    val cardElevation: Dp = 6.dp,
     
     // Grid sizes
-    val gridCellMinSize: Dp = 160.dp
+    val gridCellMinSize: Dp = 165.dp
 )
 
 val CompactDimens = Dimens()
@@ -37,16 +38,18 @@ val MediumDimens = Dimens(
     paddingLarge = 32.dp,
     paddingExtraLarge = 48.dp,
     
-    cornerRadiusSmall = 12.dp,
-    cornerRadiusMedium = 20.dp,
+    cornerRadiusSmall = 14.dp,
+    cornerRadiusMedium = 22.dp,
     cornerRadiusLarge = 28.dp,
+    cornerRadiusExtraLarge = 36.dp,
     
     iconSizeMedium = 28.dp,
-    iconSizeLarge = 40.dp,
+    iconSizeLarge = 42.dp,
     
-    buttonHeight = 56.dp,
+    buttonHeight = 58.dp,
+    cardElevation = 8.dp,
     
-    gridCellMinSize = 200.dp
+    gridCellMinSize = 210.dp
 )
 
 val ExpandedDimens = Dimens(
@@ -56,15 +59,17 @@ val ExpandedDimens = Dimens(
     paddingExtraLarge = 64.dp,
     
     cornerRadiusSmall = 16.dp,
-    cornerRadiusMedium = 24.dp,
-    cornerRadiusLarge = 32.dp,
+    cornerRadiusMedium = 26.dp,
+    cornerRadiusLarge = 34.dp,
+    cornerRadiusExtraLarge = 40.dp,
     
     iconSizeMedium = 32.dp,
     iconSizeLarge = 48.dp,
     
     buttonHeight = 64.dp,
+    cardElevation = 10.dp,
     
-    gridCellMinSize = 240.dp
+    gridCellMinSize = 250.dp
 )
 
 val LocalDimens = staticCompositionLocalOf { CompactDimens }

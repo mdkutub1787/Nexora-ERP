@@ -45,7 +45,10 @@ fun NexoraGlobalDialog(
         val (icon, bgColor, iconColor) = when (type) {
             DialogType.SUCCESS -> Triple(Icons.Default.Check, Color(0xFFE8F5E9), Color(0xFF4CAF50))
             DialogType.ERROR -> Triple(Icons.Default.Close, Color(0xFFFFEBEE), Color(0xFFF44336))
-            DialogType.WARNING -> Triple(Icons.Default.Warning, Color(0xFFFFF8E1), Color(0xFFFF9800))
+            DialogType.WARNING -> Triple(
+                Icons.Default.Warning, Color(0xFFFFF8E1), Color(0xFFFF9800)
+            )
+
             DialogType.INFO -> Triple(Icons.Default.Info, Color(0xFFE3F2FD), Color(0xFF2196F3))
         }
 
@@ -126,7 +129,9 @@ fun NexoraGlobalDialog(
                                         .weight(1f)
                                         .height(50.dp),
                                     shape = RoundedCornerShape(12.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        1.dp, MaterialTheme.colorScheme.outline
+                                    )
                                 ) {
                                     Text(
                                         text = dismissText,
@@ -135,7 +140,7 @@ fun NexoraGlobalDialog(
                                     )
                                 }
                             }
-                            
+
                             if (confirmText != null && onConfirm != null) {
                                 Button(
                                     onClick = onConfirm,

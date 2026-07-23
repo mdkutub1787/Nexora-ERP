@@ -15,9 +15,14 @@ import kotlinx.coroutines.launch
 import com.kutub.nexora.erp.data.local.PreferencesManager
 import javax.inject.Inject
 
+import com.kutub.nexora.erp.data.repository.CategoryRepository
+import com.kutub.nexora.erp.data.repository.SupplierRepository
+
 @HiltViewModel
 class ProductViewModel @Inject constructor(
     private val productRepository: ProductRepository,
+    private val categoryRepository: CategoryRepository,
+    private val supplierRepository: SupplierRepository,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
@@ -31,6 +36,12 @@ class ProductViewModel @Inject constructor(
     )
 
     private val _products = productRepository.getAllProducts()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        
+    val categories = categoryRepository.getAllCategories()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        
+    val suppliers = supplierRepository.getAllSuppliers()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val uiState = combine(_searchQuery, _products) { query, products ->
@@ -56,7 +67,7 @@ class ProductViewModel @Inject constructor(
         return productRepository.getProductById(id).firstOrNull()
     }
 
-    fun saveProduct(id: Long?, name: String, price: String, stock: String, imageUrl: String? = null) {
+    fun saveProduct(id: Long?, name: String, price: String, stock: String, categoryId: Long?, supplierId: Long?, imageUrl: String? = null) {
         if (name.isBlank() || price.isBlank() || stock.isBlank()) return
         
         viewModelScope.launch {
@@ -68,8 +79,8 @@ class ProductViewModel @Inject constructor(
                 price = price.toDoubleOrNull() ?: 0.0,
                 costPrice = (price.toDoubleOrNull() ?: 0.0) * 0.8, // Estimate cost
                 stockQuantity = stock.toIntOrNull() ?: 0,
-                categoryId = null,
-                supplierId = null,
+                categoryId = categoryId,
+                supplierId = supplierId,
                 imageUrl = imageUrl
             )
             

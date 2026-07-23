@@ -1,59 +1,63 @@
 package com.kutub.nexora.erp.ui.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
- * Nexora ERP - Material 3 Professional Color Palette
- * Designed for trust, clarity, and ease of use.
+ * Nexora POS & Inventory - Premium Indigo / Violet / Slate Palette
+ * Inspired by modern financial dashboards.
  */
 
-// Primary - Deep Professional Indigo
-val PrimaryLight = Color(0xFF005AC1)
-val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFD8E2FF)
-val OnPrimaryContainerLight = Color(0xFF001A41)
+// ─── Brand Palette ─────────────────────────────────────────────────────────────
+val PrimaryIndigo      = Color(0xFF6366F1)  // Indigo-500
+val PrimaryIndigoLight = Color(0xFF818CF8)  // Indigo-400
+val PrimaryIndigoDark  = Color(0xFF4F46E5)  // Indigo-600
 
-val PrimaryDark = Color(0xFFAEC6FF)
-val OnPrimaryDark = Color(0xFF002E69)
-val PrimaryContainerDark = Color(0xFF004494)
-val OnPrimaryContainerDark = Color(0xFFD8E2FF)
+val AccentViolet       = Color(0xFF8B5CF6)  // Violet-500
+val AccentPurple       = Color(0xFFA855F7)  // Purple-500
 
-// Secondary - Slate Blue (Balanced & Reliable)
-val SecondaryLight = Color(0xFF575E71)
-val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFDBE2F9)
-val OnSecondaryContainerLight = Color(0xFF141B2C)
+// ─── Semantic Colors ───────────────────────────────────────────────────────────
+val IncomeGreen        = Color(0xFF10B981)  // Emerald-500
+val IncomeGreenLight   = Color(0xFF34D399)  // Emerald-400
+val ExpenseRed         = Color(0xFFEF4444)  // Red-500
+val ExpenseRedLight    = Color(0xFFF87171)  // Red-400
+val SavingsBlue        = Color(0xFF3B82F6)  // Blue-500
 
-val SecondaryDark = Color(0xFFBFC6DC)
-val OnSecondaryDark = Color(0xFF293041)
-val SecondaryContainerDark = Color(0xFF3F4759)
-val OnSecondaryContainerDark = Color(0xFFDBE2F9)
+val WarningAmber       = Color(0xFFF59E0B)  // Amber-500
 
-// Tertiary - Teal Accent (Action Oriented)
-val TertiaryLight = Color(0xFF715573)
-val OnTertiaryLight = Color(0xFFFFFFFF)
-val TertiaryContainerLight = Color(0xFFFBD7FC)
-val OnTertiaryContainerLight = Color(0xFF29132D)
+// ─── Light Surface Palette (Slate) ─────────────────────────────────────────────
+val LightBackground    = Color(0xFFF8FAFC)  // Soft Slate Light Background
+val LightSurface       = Color(0xFFFFFFFF)  // Card/Surface
+val LightSurfaceVariant = Color(0xFFF1F5F9) // Elevated container
+val LightBorderColor   = Color(0xFFE2E8F0)  // Border stroke
+val LightOutline       = Color(0xFFCBD5E1)
 
-val TertiaryDark = Color(0xFFDEBCDF)
-val OnTertiaryDark = Color(0xFF402843)
-val TertiaryContainerDark = Color(0xFF583E5B)
-val OnTertiaryContainerDark = Color(0xFFFBD7FC)
+val TextPrimary        = Color(0xFF0F172A)  // Slate 900
+val TextSecondary      = Color(0xFF64748B)  // Slate 500
+val TextHint           = Color(0xFF94A3B8)  // Slate 400
 
-// Neutral / Background
-val BackgroundLight = Color(0xFFFEFBFF)
-val OnBackgroundLight = Color(0xFF1B1B1F)
-val SurfaceLight = Color(0xFFFEFBFF)
-val OnSurfaceLight = Color(0xFF1B1B1F)
+// ─── Dark Surface Palette ──────────────────────────────────────────────────────
+val DarkBackground     = Color(0xFF0F0F1A)  // Deep Midnight
+val DarkSurface        = Color(0xFF1A1A2E)  // Elevated Surface
+val DarkSurfaceVariant = Color(0xFF252545)  // Container
+val DarkBorderColor    = Color(0xFF2D2D4E)
 
-val BackgroundDark = Color(0xFF1B1B1F)
-val OnBackgroundDark = Color(0xFFE3E2E6)
-val SurfaceDark = Color(0xFF1B1B1F)
-val OnSurfaceDark = Color(0xFFE3E2E6)
+val DarkTextPrimary    = Color(0xFFF1F1FF)
+val DarkTextSecondary  = Color(0xFF9B9BC8)
 
-// Functional Colors
-val Success = Color(0xFF1B6C33)
-val Error = Color(0xFFBA1A1A)
-val OnError = Color(0xFFFFFFFF)
-val Warning = Color(0xFF8B5000)
-val Info = Color(0xFF00639B)
+// ─── Reusable Gradients ───────────────────────────────────────────────────────
+val HeroGradient = Brush.linearGradient(
+    colors = listOf(PrimaryIndigo, AccentViolet)
+)
+
+val HeroDarkGradient = Brush.linearGradient(
+    colors = listOf(PrimaryIndigoDark, AccentPurple)
+)
+
+val GreenGradient = Brush.linearGradient(
+    colors = listOf(IncomeGreen, Color(0xFF059669))
+)
+
+val AmberGradient = Brush.linearGradient(
+    colors = listOf(WarningAmber, Color(0xFFD97706))
+)

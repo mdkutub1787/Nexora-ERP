@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,18 +40,27 @@ import com.kutub.nexora.erp.ui.theme.dimens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PosScreen(
-    onNavigateBack: () -> Unit,
-    viewModel: PosViewModel = hiltViewModel()
+    onNavigateBack: () -> Unit, viewModel: PosViewModel = hiltViewModel()
 ) {
     val products by viewModel.products.collectAsState()
     val cartItems by viewModel.cartItems.collectAsState()
     val totalAmount by viewModel.totalAmount.collectAsState()
     val currency by viewModel.currency.collectAsState(initial = "$")
+    val categories by viewModel.categories.collectAsState()
+    val selectedCategoryId by viewModel.selectedCategoryId.collectAsState()
 
     var showCartSheet by remember { mutableStateOf(false) }
     var showCheckoutDialog by remember { mutableStateOf(false) }
-    var completedSaleReceipt by remember { mutableStateOf<com.kutub.nexora.erp.data.model.SaleEntity?>(null) }
-    var completedSaleItems by remember { mutableStateOf<List<com.kutub.nexora.erp.data.model.SaleItemEntity>>(emptyList()) }
+    var completedSaleReceipt by remember {
+        mutableStateOf<com.kutub.nexora.erp.data.model.SaleEntity?>(
+            null
+        )
+    }
+    var completedSaleItems by remember {
+        mutableStateOf<List<com.kutub.nexora.erp.data.model.SaleItemEntity>>(
+            emptyList()
+        )
+    }
 
     if (completedSaleReceipt != null) {
         ReceiptDialog(
@@ -59,8 +70,7 @@ fun PosScreen(
             onDismiss = {
                 completedSaleReceipt = null
                 completedSaleItems = emptyList()
-            }
-        )
+            })
     }
 
     if (showCheckoutDialog) {
@@ -75,65 +85,63 @@ fun PosScreen(
                     completedSaleReceipt = sale
                     completedSaleItems = items
                 }
+            })
+    }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    // Barcode Launcher
+    var showCameraScanner by remember { mutableStateOf(false) }
+
+    if (showCameraScanner) {
+        com.kutub.nexora.erp.ui.components.CameraScannerDialog(
+            onDismiss = { showCameraScanner = false },
+            onBarcodeScanned = { scannedSku ->
+                val matchedProduct = products.find { it.sku == scannedSku || it.id.toString() == scannedSku }
+                if (matchedProduct != null) {
+                    viewModel.addToCart(matchedProduct)
+                    android.widget.Toast.makeText(
+                        context,
+                        "Added ${matchedProduct.name} to cart",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    android.widget.Toast.makeText(
+                        context,
+                        "Product not found for barcode: $scannedSku",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         )
     }
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    
-    // Barcode Launcher
-    val barcodeLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        com.journeyapps.barcodescanner.ScanContract()
-    ) { result ->
-        if (result.contents != null) {
-            val scannedSku = result.contents
-            val matchedProduct = products.find { it.sku == scannedSku }
-            if (matchedProduct != null) {
-                viewModel.addToCart(matchedProduct)
-                android.widget.Toast.makeText(context, "Added ${matchedProduct.name} to cart", android.widget.Toast.LENGTH_SHORT).show()
-            } else {
-                android.widget.Toast.makeText(context, "Product not found for SKU: $scannedSku", android.widget.Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Point of Sale (POS)", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        val options = com.journeyapps.barcodescanner.ScanOptions()
-                        options.setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.ALL_CODE_TYPES)
-                        options.setPrompt("Scan a barcode")
-                        options.setCameraId(0)
-                        options.setBeepEnabled(true)
-                        options.setBarcodeImageEnabled(false)
-                        barcodeLauncher.launch(options)
-                    }) {
-                        Icon(Icons.Default.QrCode, contentDescription = "Scan Barcode")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text("Point of Sale (POS)", fontWeight = FontWeight.Bold) },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            },
+            actions = {
+                IconButton(onClick = { showCameraScanner = true }) {
+                    Icon(Icons.Default.QrCode, contentDescription = "Scan Barcode")
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background
             )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { showCartSheet = true },
-                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Cart") },
-                text = { Text("Cart (${cartItems.sumOf { it.quantity }}) - ${currency}${totalAmount}") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        }
-    ) { paddingValues ->
+        )
+    }, floatingActionButton = {
+        ExtendedFloatingActionButton(
+            onClick = { showCartSheet = true },
+            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Cart") },
+            text = { Text("Cart (${cartItems.sumOf { it.quantity }}) - ${currency}${totalAmount}") },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -141,6 +149,41 @@ fun PosScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             val dimens = MaterialTheme.dimens
+
+            // Category Filter Chips
+            if (categories.isNotEmpty()) {
+                LazyRow(
+                    contentPadding = PaddingValues(
+                        horizontal = dimens.paddingMedium, vertical = dimens.paddingSmall
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(dimens.paddingSmall),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    item {
+                        FilterChip(
+                            selected = selectedCategoryId == null,
+                            onClick = { viewModel.selectCategory(null) },
+                            label = { Text("All") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                    items(categories) { category ->
+                        FilterChip(
+                            selected = selectedCategoryId == category.id,
+                            onClick = { viewModel.selectCategory(category.id) },
+                            label = { Text(category.name) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                }
+            }
+
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = dimens.gridCellMinSize),
                 contentPadding = PaddingValues(dimens.paddingMedium),
@@ -148,11 +191,12 @@ fun PosScreen(
                 verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium)
             ) {
                 items(products) { product ->
+                    val selectedQty = cartItems.find { it.product.id == product.id }?.quantity ?: 0
                     PosProductCard(
                         product = product,
                         currency = currency,
-                        onClick = { viewModel.addToCart(product) }
-                    )
+                        selectedQuantity = selectedQty,
+                        onClick = { viewModel.addToCart(product) })
                 }
             }
         }
@@ -195,8 +239,7 @@ fun PosScreen(
                                 item = item,
                                 currency = currency,
                                 onAdd = { viewModel.addToCart(item.product) },
-                                onRemove = { viewModel.removeFromCart(item.product) }
-                            )
+                                onRemove = { viewModel.removeFromCart(item.product) })
                         }
                     }
 
@@ -226,7 +269,9 @@ fun PosScreen(
 
                     Button(
                         onClick = { showCheckoutDialog = true },
-                        modifier = Modifier.fillMaxWidth().height(dimens.buttonHeight),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(dimens.buttonHeight),
                         shape = RoundedCornerShape(dimens.cornerRadiusSmall)
                     ) {
                         Text("Proceed to Checkout", fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -239,85 +284,115 @@ fun PosScreen(
 
 @Composable
 fun PosProductCard(
-    product: ProductEntity,
-    currency: String,
-    onClick: () -> Unit
+    product: ProductEntity, currency: String, selectedQuantity: Int = 0, onClick: () -> Unit
 ) {
     val dimens = MaterialTheme.dimens
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = product.stockQuantity > 0) { onClick() },
-        shape = RoundedCornerShape(dimens.cornerRadiusMedium),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (product.stockQuantity > 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
+            containerColor = if (product.stockQuantity > 0) MaterialTheme.colorScheme.surface 
+                             else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.08f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = dimens.cardElevation)
+        border = if (selectedQuantity > 0) androidx.compose.foundation.BorderStroke(
+            2.dp, com.kutub.nexora.erp.ui.theme.PrimaryIndigo
+        ) else androidx.compose.foundation.BorderStroke(
+            1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (selectedQuantity > 0) 8.dp else dimens.cardElevation)
     ) {
-        Column(
-            modifier = Modifier.padding(dimens.paddingMedium)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            if (product.stockQuantity > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
-                            CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
+        Box {
+            Column(
+                modifier = Modifier.padding(dimens.paddingMedium)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(alpha = 0.12f)
+                                else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.12f)
+                            ), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = product.name.takeIf { it.isNotBlank() }?.substring(0, 1)
+                                ?.uppercase() ?: "P",
+                            fontWeight = FontWeight.Black,
+                            color = if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo else com.kutub.nexora.erp.ui.theme.ExpenseRed
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = product.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "SKU: ${product.sku ?: "N/A"}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(dimens.paddingMedium))
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                Spacer(modifier = Modifier.height(dimens.paddingSmall))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = product.name.takeIf { it.isNotBlank() }?.substring(0, 1)?.uppercase() ?: "P",
-                        fontWeight = FontWeight.Bold,
-                        color = if (product.stockQuantity > 0) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+                        text = "${currency}${product.price}",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = com.kutub.nexora.erp.ui.theme.PrimaryIndigo,
+                        fontWeight = FontWeight.Black
                     )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = product.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = "SKU: ${product.sku ?: "N/A"}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen.copy(alpha = 0.15f)
+                                else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber.copy(alpha = 0.15f)
+                                else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = if (product.stockQuantity > 0) "Stock: ${product.stockQuantity}" else "Out",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen
+                                    else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber
+                                    else com.kutub.nexora.erp.ui.theme.ExpenseRed,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
-
-            Spacer(modifier = Modifier.height(dimens.paddingMedium))
-            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
-            Spacer(modifier = Modifier.height(dimens.paddingSmall))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${currency}${product.price}",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.ExtraBold
-                )
-                
+            if (selectedQuantity > 0) {
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (product.stockQuantity > 0) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(24.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    Text(
-                        text = "Stock: ${product.stockQuantity}",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (product.stockQuantity > 0) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = selectedQuantity.toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
@@ -326,15 +401,15 @@ fun PosProductCard(
 
 @Composable
 fun CartItemRow(
-    item: CartItem,
-    currency: String,
-    onAdd: () -> Unit,
-    onRemove: () -> Unit
+    item: CartItem, currency: String, onAdd: () -> Unit, onRemove: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+            .background(
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                RoundedCornerShape(12.dp)
+            )
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -351,7 +426,7 @@ fun CartItemRow(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-        
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -362,22 +437,31 @@ fun CartItemRow(
                     .size(32.dp)
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
             ) {
-                Icon(Icons.Default.Remove, contentDescription = "Remove", modifier = Modifier.size(20.dp))
+                Icon(
+                    Icons.Default.Remove,
+                    contentDescription = "Remove",
+                    modifier = Modifier.size(20.dp)
+                )
             }
-            
+
             Text(
                 text = "${item.quantity}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             IconButton(
                 onClick = onAdd,
                 modifier = Modifier
                     .size(32.dp)
                     .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp))
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
@@ -392,13 +476,12 @@ fun CheckoutDialog(
 ) {
     var customerName by remember { mutableStateOf("") }
     var discountStr by remember { mutableStateOf("0.0") }
-    
+
     val discount = discountStr.toDoubleOrNull() ?: 0.0
     val finalAmount = (totalAmount - discount).coerceAtLeast(0.0)
 
     Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
             modifier = Modifier
@@ -418,7 +501,7 @@ fun CheckoutDialog(
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 OutlinedTextField(
                     value = customerName,
                     onValueChange = { customerName = it },
@@ -427,7 +510,7 @@ fun CheckoutDialog(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
-                
+
                 OutlinedTextField(
                     value = discountStr,
                     onValueChange = { discountStr = it },
@@ -437,26 +520,48 @@ fun CheckoutDialog(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
-                
+
                 HorizontalDivider()
-                
+
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text("Subtotal:", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("${currency}${totalAmount}", fontWeight = FontWeight.SemiBold)
                     }
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text("Discount:", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("-${currency}${discount}", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "-${currency}${discount}",
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Final Amount:", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Text("${currency}${finalAmount}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            "Final Amount:",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            "${currency}${finalAmount}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -467,11 +572,17 @@ fun CheckoutDialog(
                             .weight(1f)
                             .height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp, MaterialTheme.colorScheme.outline
+                        )
                     ) {
-                        Text("Cancel", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                        Text(
+                            "Cancel",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
-                    
+
                     Button(
                         onClick = { onConfirm(customerName, discount) },
                         modifier = Modifier
@@ -480,7 +591,11 @@ fun CheckoutDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Confirm", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                        Text(
+                            "Confirm",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
             }
@@ -497,8 +612,7 @@ fun ReceiptDialog(
 ) {
     val dimens = com.kutub.nexora.erp.ui.theme.LocalDimens.current
     Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
             modifier = Modifier
@@ -521,9 +635,18 @@ fun ReceiptDialog(
                     modifier = Modifier.size(dimens.iconSizeExtraLarge)
                 )
                 Spacer(Modifier.height(dimens.paddingSmall))
-                Text(androidx.compose.ui.res.stringResource(com.kutub.nexora.erp.R.string.app_name), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text("Digital Receipt", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                
+                Text(
+                    androidx.compose.ui.res.stringResource(com.kutub.nexora.erp.R.string.app_name),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    "Digital Receipt",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
                 Spacer(Modifier.height(dimens.paddingMedium))
                 HorizontalDivider()
                 Spacer(Modifier.height(dimens.paddingMedium))
@@ -539,8 +662,16 @@ fun ReceiptDialog(
                                 .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("${item.productName} x${item.quantity}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-                            Text("${currency}${item.totalPrice}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                            Text(
+                                "${item.productName} x${item.quantity}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                "${currency}${item.totalPrice}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
@@ -555,15 +686,25 @@ fun ReceiptDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Subtotal:", style = MaterialTheme.typography.bodyLarge)
-                    Text("${currency}${sale.totalAmount}", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "${currency}${sale.totalAmount}", style = MaterialTheme.typography.bodyLarge
+                    )
                 }
                 if (sale.discount > 0) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Discount:", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.error)
-                        Text("-${currency}${sale.discount}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.error)
+                        Text(
+                            "Discount:",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            "-${currency}${sale.discount}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
                 Spacer(Modifier.height(dimens.paddingSmall))
@@ -571,18 +712,71 @@ fun ReceiptDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Total:", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    Text("${currency}${sale.finalAmount}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        "Total:",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        "${currency}${sale.finalAmount}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
 
                 Spacer(Modifier.height(dimens.paddingLarge))
 
-                Button(
-                    onClick = onDismiss,
+                val context = androidx.compose.ui.platform.LocalContext.current
+                var showPdfPreview by remember { mutableStateOf(false) }
+                var generatedPdfFile by remember { mutableStateOf<java.io.File?>(null) }
+
+                if (showPdfPreview && generatedPdfFile != null) {
+                    com.kutub.nexora.erp.ui.components.PdfPreviewDialog(
+                        pdfFile = generatedPdfFile!!,
+                        title = "Invoice #${sale.id}",
+                        onDismiss = { showPdfPreview = false }
+                    )
+                }
+
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(dimens.cornerRadiusMedium)
+                    horizontalArrangement = Arrangement.spacedBy(dimens.paddingSmall)
                 ) {
-                    Text("Done", modifier = Modifier.padding(vertical = 8.dp), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    OutlinedButton(
+                        onClick = {
+                            val file = com.kutub.nexora.erp.utils.PdfGenerator.generateInvoicePdf(
+                                context = context,
+                                sale = sale,
+                                items = saleItems,
+                                currency = currency
+                            )
+                            if (file != null) {
+                                generatedPdfFile = file
+                                showPdfPreview = true
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(dimens.cornerRadiusMedium)
+                    ) {
+                        Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("PDF / Print", fontWeight = FontWeight.Bold)
+                    }
+
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(dimens.cornerRadiusMedium)
+                    ) {
+                        Text(
+                            "Done",
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

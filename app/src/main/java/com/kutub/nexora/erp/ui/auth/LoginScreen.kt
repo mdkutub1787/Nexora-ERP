@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import com.kutub.nexora.erp.ui.components.DialogType
 import com.kutub.nexora.erp.ui.components.NexoraGlobalDialog
+import com.kutub.nexora.erp.ui.theme.HeroGradient
+import com.kutub.nexora.erp.ui.theme.PrimaryIndigo
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -104,186 +106,228 @@ fun LoginScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        // Top Hero Gradient Background Header (Inspired by Daily Finance)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(280.dp)
+                .background(HeroGradient)
+                .padding(24.dp)
+        ) {
+            // Decorative background translucent circles
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 30.dp, y = (-20).dp)
+                    .size(160.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.1f))
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .offset(x = (-40).dp, y = 30.dp)
+                    .size(180.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.08f))
+            )
+
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(76.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.22f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = com.kutub.nexora.erp.R.drawable.splash_logo),
+                        contentDescription = "Nexora ERP Logo",
+                        modifier = Modifier.fillMaxSize(0.65f),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Nexora ERP",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White
+                )
+                Text(
+                    text = "Smart Enterprise Management",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.85f)
+                )
+            }
+        }
+
+        // Floating Card Form Container
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .verticalScroll(scrollState)
+                .padding(top = 220.dp, start = 20.dp, end = 20.dp, bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo Container
-            Box(
-                modifier = Modifier
-                    .size(140.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             ) {
-                Image(
-                    painter = painterResource(id = com.kutub.nexora.erp.R.drawable.splash_logo),
-                    contentDescription = "Nexora ERP Logo",
-                    modifier = Modifier.fillMaxSize(0.7f),
-                    contentScale = ContentScale.Fit
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "Welcome Back",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Text(
-                text = "Sign in to manage your enterprise",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email Address") },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .onGloballyPositioned {
-                            emailAutofillNode.boundingBox =
-                                it.localToWindow(androidx.compose.ui.geometry.Offset.Zero)
-                                    .let { offset ->
-                                        Rect(
-                                            offset.x,
-                                            offset.y,
-                                            offset.x + it.size.width,
-                                            offset.y + it.size.height
-                                        )
-                                    }
-                        }
-                        .onFocusChanged { focusState ->
-                            autofill?.run {
-                                if (focusState.isFocused) {
-                                    requestAutofillForNode(emailAutofillNode)
-                                } else {
-                                    cancelAutofillForNode(emailAutofillNode)
-                                }
-                            }
-                        },
-                    shape = RoundedCornerShape(16.dp),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Email,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
-                    ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Sign In",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                )
+                    Text(
+                        text = "Enter credentials to access your account",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned {
-                            passwordAutofillNode.boundingBox =
-                                it.localToWindow(androidx.compose.ui.geometry.Offset.Zero)
-                                    .let { offset ->
-                                        Rect(
-                                            offset.x,
-                                            offset.y,
-                                            offset.x + it.size.width,
-                                            offset.y + it.size.height
-                                        )
-                                    }
-                        }
-                        .onFocusChanged { focusState ->
-                            autofill?.run {
-                                if (focusState.isFocused) {
-                                    requestAutofillForNode(passwordAutofillNode)
-                                } else {
-                                    cancelAutofillForNode(passwordAutofillNode)
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Email Address") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned {
+                                    emailAutofillNode.boundingBox =
+                                        it.localToWindow(androidx.compose.ui.geometry.Offset.Zero)
+                                            .let { offset ->
+                                                Rect(
+                                                    offset.x,
+                                                    offset.y,
+                                                    offset.x + it.size.width,
+                                                    offset.y + it.size.height
+                                                )
+                                            }
                                 }
-                            }
-                        },
-                    shape = RoundedCornerShape(16.dp),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Lock,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = null
+                                .onFocusChanged { focusState ->
+                                    autofill?.run {
+                                        if (focusState.isFocused) {
+                                            requestAutofillForNode(emailAutofillNode)
+                                        } else {
+                                            cancelAutofillForNode(emailAutofillNode)
+                                        }
+                                    }
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Email,
+                                    contentDescription = null,
+                                    tint = PrimaryIndigo
+                                )
+                            },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
+                            ),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = PrimaryIndigo,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
                             )
-                        }
-                    },
-                    visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password, imeAction = ImeAction.Done
-                    ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
-                )
+                        )
+
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text("Password") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned {
+                                    passwordAutofillNode.boundingBox =
+                                        it.localToWindow(androidx.compose.ui.geometry.Offset.Zero)
+                                            .let { offset ->
+                                                Rect(
+                                                    offset.x,
+                                                    offset.y,
+                                                    offset.x + it.size.width,
+                                                    offset.y + it.size.height
+                                                )
+                                            }
+                                }
+                                .onFocusChanged { focusState ->
+                                    autofill?.run {
+                                        if (focusState.isFocused) {
+                                            requestAutofillForNode(passwordAutofillNode)
+                                        } else {
+                                            cancelAutofillForNode(passwordAutofillNode)
+                                        }
+                                    }
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = PrimaryIndigo
+                                )
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(
+                                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password, imeAction = ImeAction.Done
+                            ),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = PrimaryIndigo,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    Button(
+                        onClick = { showLoginSuccess = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(54.dp)
+                            .background(HeroGradient, RoundedCornerShape(16.dp)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Sign In", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Don't have an account? ", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            "Register",
+                            color = PrimaryIndigo,
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.clickable { onNavigateToRegister() }
+                        )
+                    }
+                }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "Forgot Password?",
-                modifier = Modifier.align(Alignment.End),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = { showLoginSuccess = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-            ) {
-                Text("Login", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Don't have an account? ", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(
-                    "Sign Up",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.clickable { onNavigateToRegister() })
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

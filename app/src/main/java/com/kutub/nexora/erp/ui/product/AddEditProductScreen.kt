@@ -32,11 +32,19 @@ fun AddEditProductScreen(
     viewModel: ProductViewModel = hiltViewModel()
 ) {
     val currency by viewModel.currency.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+    val suppliers by viewModel.suppliers.collectAsState()
     
     var name by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var stock by remember { mutableStateOf("") }
     var imageUrl by remember { mutableStateOf("") }
+    
+    var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
+    var selectedSupplierId by remember { mutableStateOf<Long?>(null) }
+    
+    var categoryExpanded by remember { mutableStateOf(false) }
+    var supplierExpanded by remember { mutableStateOf(false) }
 
     var showSuccessDialog by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
@@ -72,6 +80,8 @@ fun AddEditProductScreen(
                 price = product.price.toString()
                 stock = product.stockQuantity.toString()
                 imageUrl = product.imageUrl ?: ""
+                selectedCategoryId = product.categoryId
+                selectedSupplierId = product.supplierId
             }
         }
     }
@@ -115,7 +125,9 @@ fun AddEditProductScreen(
                         model = imageUrl,
                         contentDescription = "Product Image",
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        error = androidx.compose.ui.res.painterResource(com.kutub.nexora.erp.R.drawable.splash_logo),
+                        placeholder = androidx.compose.ui.res.painterResource(com.kutub.nexora.erp.R.drawable.splash_logo)
                     )
                 } else {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -179,6 +191,82 @@ fun AddEditProductScreen(
                         singleLine = true
                     )
                 }
+                
+                // Category Dropdown
+                ExposedDropdownMenuBox(
+                    expanded = categoryExpanded,
+                    onExpandedChange = { categoryExpanded = !categoryExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = categories.find { it.id == selectedCategoryId }?.name ?: "Select Category",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Category") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        leadingIcon = { Icon(Icons.Default.Category, contentDescription = null) }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = categoryExpanded,
+                        onDismissRequest = { categoryExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("None") },
+                            onClick = {
+                                selectedCategoryId = null
+                                categoryExpanded = false
+                            }
+                        )
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(category.name) },
+                                onClick = {
+                                    selectedCategoryId = category.id
+                                    categoryExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                
+                // Supplier Dropdown
+                ExposedDropdownMenuBox(
+                    expanded = supplierExpanded,
+                    onExpandedChange = { supplierExpanded = !supplierExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = suppliers.find { it.id == selectedSupplierId }?.name ?: "Select Supplier",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Supplier") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = supplierExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        leadingIcon = { Icon(Icons.Default.LocalShipping, contentDescription = null) }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = supplierExpanded,
+                        onDismissRequest = { supplierExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("None") },
+                            onClick = {
+                                selectedSupplierId = null
+                                supplierExpanded = false
+                            }
+                        )
+                        suppliers.forEach { supplier ->
+                            DropdownMenuItem(
+                                text = { Text(supplier.name) },
+                                onClick = {
+                                    selectedSupplierId = supplier.id
+                                    supplierExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -186,7 +274,7 @@ fun AddEditProductScreen(
             Button(
                 onClick = {
                     if (name.isNotBlank() && price.isNotBlank() && stock.isNotBlank()) {
-                        viewModel.saveProduct(productId, name, price, stock, imageUrl.ifBlank { null })
+                        viewModel.saveProduct(productId, name, price, stock, selectedCategoryId, selectedSupplierId, imageUrl.ifBlank { null })
                         showSuccessDialog = true
                     } else {
                         showErrorDialog = true

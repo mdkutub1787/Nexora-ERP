@@ -24,7 +24,7 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
         val LANGUAGE = stringPreferencesKey("language") // "en", "bn"
         val CURRENCY = stringPreferencesKey("currency") // "$", "৳"
         val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
-        
+
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val USER_NAME = stringPreferencesKey("user_name")
         val USER_EMAIL = stringPreferencesKey("user_email")

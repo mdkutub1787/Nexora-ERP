@@ -14,23 +14,43 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.kutub.nexora.erp.data.model.CategoryEntity
+import com.kutub.nexora.erp.data.repository.CategoryRepository
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 data class CartItem(
     val product: ProductEntity,
     val quantity: Int
 )
 
+
 @HiltViewModel
 class PosViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val saleRepository: SaleRepository,
+    private val categoryRepository: CategoryRepository,
     preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     val currency = preferencesManager.currencyFlow
 
-    private val _products = MutableStateFlow<List<ProductEntity>>(emptyList())
-    val products: StateFlow<List<ProductEntity>> = _products.asStateFlow()
+    private val _selectedCategoryId = MutableStateFlow<Long?>(null)
+    val selectedCategoryId: StateFlow<Long?> = _selectedCategoryId.asStateFlow()
+
+    val categories = categoryRepository.getAllCategories()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _allProducts = productRepository.getAllProducts()
+    
+    val products = combine(_allProducts, _selectedCategoryId) { allProds, catId ->
+        if (catId == null) {
+            allProds
+        } else {
+            allProds.filter { it.categoryId == catId }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
@@ -38,12 +58,8 @@ class PosViewModel @Inject constructor(
     private val _totalAmount = MutableStateFlow(0.0)
     val totalAmount: StateFlow<Double> = _totalAmount.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            productRepository.getAllProducts().collect {
-                _products.value = it
-            }
-        }
+    fun selectCategory(categoryId: Long?) {
+        _selectedCategoryId.value = categoryId
     }
 
     fun addToCart(product: ProductEntity) {

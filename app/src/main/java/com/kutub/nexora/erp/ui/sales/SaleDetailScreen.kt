@@ -27,6 +27,14 @@ import com.kutub.nexora.erp.data.model.SaleItemEntity
 import java.text.SimpleDateFormat
 import java.util.*
 
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import android.content.Intent
+import com.kutub.nexora.erp.utils.PdfGenerator
+import android.widget.Toast
+
+import com.kutub.nexora.erp.ui.components.PdfPreviewDialog
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaleDetailScreen(
@@ -39,6 +47,17 @@ fun SaleDetailScreen(
     var sale by remember { mutableStateOf<SaleEntity?>(null) }
     var saleItems by remember { mutableStateOf<List<SaleItemEntity>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    
+    var pdfPreviewFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    if (pdfPreviewFile != null) {
+        PdfPreviewDialog(
+            pdfFile = pdfPreviewFile!!,
+            title = "Invoice #${sale?.id}",
+            onDismiss = { pdfPreviewFile = null }
+        )
+    }
 
     LaunchedEffect(saleId) {
         val result = viewModel.getSaleDetails(saleId)
@@ -57,11 +76,29 @@ fun SaleDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Share PDF */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share")
+                    IconButton(onClick = {
+                        if (sale != null && saleItems.isNotEmpty()) {
+                            val pdfFile = PdfGenerator.generateInvoicePdf(context, sale!!, saleItems, currency)
+                            if (pdfFile != null) {
+                                pdfPreviewFile = pdfFile
+                            } else {
+                                Toast.makeText(context, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }) {
+                        Icon(Icons.Default.Share, contentDescription = "Share PDF")
                     }
-                    IconButton(onClick = { /* TODO: Print */ }) {
-                        Icon(Icons.Default.Print, contentDescription = "Print")
+                    IconButton(onClick = {
+                        if (sale != null && saleItems.isNotEmpty()) {
+                            val pdfFile = PdfGenerator.generateInvoicePdf(context, sale!!, saleItems, currency)
+                            if (pdfFile != null) {
+                                pdfPreviewFile = pdfFile
+                            } else {
+                                Toast.makeText(context, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }) {
+                        Icon(Icons.Default.Print, contentDescription = "Print/View PDF")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

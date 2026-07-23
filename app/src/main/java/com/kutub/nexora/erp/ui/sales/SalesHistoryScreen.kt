@@ -109,14 +109,15 @@ fun SaleHistoryCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(18.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -127,13 +128,13 @@ fun SaleHistoryCard(
                     Box(
                         modifier = Modifier
                             .size(48.dp)
-                            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                            .background(com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(alpha = 0.12f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Default.Receipt,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = com.kutub.nexora.erp.ui.theme.PrimaryIndigo
                         )
                     }
                     Spacer(modifier = Modifier.width(12.dp))
@@ -153,21 +154,21 @@ fun SaleHistoryCard(
                 }
                 
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer
+                    shape = RoundedCornerShape(10.dp),
+                    color = com.kutub.nexora.erp.ui.theme.IncomeGreen.copy(alpha = 0.15f)
                 ) {
                     Text(
                         text = "Completed",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        color = com.kutub.nexora.erp.ui.theme.IncomeGreen,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
@@ -175,33 +176,14 @@ fun SaleHistoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (!sale.customerName.isNullOrBlank()) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = sale.customerName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                } else {
-                    Text(
-                        text = "Guest Customer",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                    )
-                }
+                Text(
+                    text = "Customer: ${sale.customerName ?: "Walk-in Customer"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 
                 Text(
-                    text = "${currency}${sale.finalAmount}",
+                    text = "$currency${sale.totalAmount}",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary

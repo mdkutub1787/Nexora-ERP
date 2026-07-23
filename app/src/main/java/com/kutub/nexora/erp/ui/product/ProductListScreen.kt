@@ -29,8 +29,7 @@ import com.kutub.nexora.erp.ui.theme.dimens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductListScreen(
-    onNavigateToAddProduct: (Long?) -> Unit,
-    viewModel: ProductViewModel = hiltViewModel()
+    onNavigateToAddProduct: (Long?) -> Unit, viewModel: ProductViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -40,12 +39,14 @@ fun ProductListScreen(
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showDeleteSuccess by remember { mutableStateOf(false) }
 
-    val barcodeLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        com.journeyapps.barcodescanner.ScanContract()
-    ) { result ->
-        if (result.contents != null) {
-            viewModel.onSearchQueryChange(result.contents)
-        }
+    var showCameraScanner by remember { mutableStateOf(false) }
+
+    if (showCameraScanner) {
+        com.kutub.nexora.erp.ui.components.CameraScannerDialog(onDismiss = {
+            showCameraScanner = false
+        }, onBarcodeScanned = { scannedBarcode ->
+            viewModel.onSearchQueryChange(scannedBarcode)
+        })
     }
 
     NexoraGlobalDialog(
@@ -61,8 +62,7 @@ fun ProductListScreen(
             selectedProduct = null
             showDeleteSuccess = true
         },
-        onDismiss = { showDeleteConfirm = false }
-    )
+        onDismiss = { showDeleteConfirm = false })
 
     NexoraGlobalDialog(
         showDialog = showDeleteSuccess,
@@ -71,59 +71,40 @@ fun ProductListScreen(
         message = "Product deleted successfully.",
         confirmText = "OK",
         onConfirm = { showDeleteSuccess = false },
-        onDismiss = { showDeleteSuccess = false }
-    )
+        onDismiss = { showDeleteSuccess = false })
 
     if (selectedProduct != null && !showDeleteConfirm) {
         ModalBottomSheet(
             onDismissRequest = { selectedProduct = null },
             sheetState = rememberModalBottomSheetState()
         ) {
-            ProductDetailsContent(
-                product = selectedProduct!!,
-                currency = currency,
-                onEdit = {
-                    onNavigateToAddProduct(selectedProduct!!.id)
-                    selectedProduct = null
-                },
-                onDelete = { showDeleteConfirm = true }
-            )
+            ProductDetailsContent(product = selectedProduct!!, currency = currency, onEdit = {
+                onNavigateToAddProduct(selectedProduct!!.id)
+                selectedProduct = null
+            }, onDelete = { showDeleteConfirm = true })
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Products", fontWeight = FontWeight.Bold) },
-                actions = {
-                    IconButton(onClick = {
-                        val options = com.journeyapps.barcodescanner.ScanOptions()
-                        options.setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.ALL_CODE_TYPES)
-                        options.setPrompt("Scan a barcode")
-                        options.setCameraId(0)
-                        options.setBeepEnabled(true)
-                        options.setBarcodeImageEnabled(false)
-                        barcodeLauncher.launch(options)
-                    }) {
-                        Icon(Icons.Default.QrCode, contentDescription = "Scan Barcode")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text("Inventory", fontWeight = FontWeight.Bold) }, actions = {
+                IconButton(onClick = { showCameraScanner = true }) {
+                    Icon(Icons.Default.QrCode, contentDescription = "Scan Barcode")
+                }
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onNavigateToAddProduct(null) },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Product")
-            }
+        )
+    }, floatingActionButton = {
+        FloatingActionButton(
+            onClick = { onNavigateToAddProduct(null) },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add Product")
         }
-    ) { paddingValues ->
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -153,8 +134,7 @@ fun ProductListScreen(
                         ProductCard(
                             product = product,
                             currency = currency,
-                            onClick = { selectedProduct = product }
-                        )
+                            onClick = { selectedProduct = product })
                     }
                 }
             }
@@ -164,9 +144,7 @@ fun ProductListScreen(
 
 @Composable
 fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = query,
@@ -194,49 +172,63 @@ fun SearchBar(
 
 @Composable
 fun ProductCard(
-    product: ProductEntity,
-    currency: String,
-    onClick: () -> Unit
+    product: ProductEntity, currency: String, onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(18.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(52.dp)
+                            .clip(CircleShape)
                             .background(
-                                if (product.stockQuantity > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
-                                CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
+                                if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(
+                                    alpha = 0.12f
+                                )
+                                else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.12f)
+                            ), contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = product.name.takeIf { it.isNotBlank() }?.substring(0, 1)?.uppercase() ?: "P",
-                            fontWeight = FontWeight.Bold,
-                            color = if (product.stockQuantity > 0) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer,
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        if (!product.imageUrl.isNullOrBlank()) {
+                            AsyncImage(
+                                model = product.imageUrl,
+                                contentDescription = product.name,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                                error = androidx.compose.ui.res.painterResource(com.kutub.nexora.erp.R.drawable.splash_logo),
+                                placeholder = androidx.compose.ui.res.painterResource(com.kutub.nexora.erp.R.drawable.splash_logo)
+                            )
+                        } else {
+                            Text(
+                                text = product.name.takeIf { it.isNotBlank() }?.substring(0, 1)
+                                    ?.uppercase() ?: "P",
+                                fontWeight = FontWeight.Black,
+                                color = if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo else com.kutub.nexora.erp.ui.theme.ExpenseRed,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(
                             text = product.name,
@@ -246,6 +238,7 @@ fun ProductCard(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "SKU: ${product.sku ?: "N/A"}",
                             style = MaterialTheme.typography.bodySmall,
@@ -253,23 +246,31 @@ fun ProductCard(
                         )
                     }
                 }
-                
+
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (product.stockQuantity > 0) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen.copy(
+                        alpha = 0.15f
+                    )
+                    else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber.copy(
+                        alpha = 0.15f
+                    )
+                    else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.15f)
                 ) {
                     Text(
-                        text = "Stock: ${product.stockQuantity}",
-                        style = MaterialTheme.typography.labelSmall,
+                        text = if (product.stockQuantity > 0) "Stock: ${product.stockQuantity}" else "Out of Stock",
+                        style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (product.stockQuantity > 0) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen
+                        else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber
+                        else com.kutub.nexora.erp.ui.theme.ExpenseRed,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
@@ -279,18 +280,18 @@ fun ProductCard(
             ) {
                 Column {
                     Text(
-                        text = "Purchase Price",
+                        text = "Purchase Cost",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "$currency${product.costPrice}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                
+
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = "Selling Price",
@@ -299,9 +300,9 @@ fun ProductCard(
                     )
                     Text(
                         text = "$currency${product.price}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = com.kutub.nexora.erp.ui.theme.PrimaryIndigo
                     )
                 }
             }
@@ -311,10 +312,7 @@ fun ProductCard(
 
 @Composable
 fun ProductDetailsContent(
-    product: ProductEntity,
-    currency: String,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
+    product: ProductEntity, currency: String, onEdit: () -> Unit, onDelete: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -333,20 +331,29 @@ fun ProductDetailsContent(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
-        DetailItem(label = "Price", value = "$currency${product.price}", icon = Icons.Default.Payments)
-        DetailItem(label = "Cost Price", value = "$currency${product.costPrice}", icon = Icons.Default.AccountBalanceWallet)
-        DetailItem(label = "Current Stock", value = "${product.stockQuantity} units", icon = Icons.Default.Inventory2)
+
+        DetailItem(
+            label = "Price", value = "$currency${product.price}", icon = Icons.Default.Payments
+        )
+        DetailItem(
+            label = "Cost Price",
+            value = "$currency${product.costPrice}",
+            icon = Icons.Default.AccountBalanceWallet
+        )
+        DetailItem(
+            label = "Current Stock",
+            value = "${product.stockQuantity} units",
+            icon = Icons.Default.Inventory2
+        )
         DetailItem(label = "Barcode", value = product.barcode ?: "N/A", icon = Icons.Default.QrCode)
         DetailItem(label = "SKU", value = product.sku ?: "N/A", icon = Icons.Default.Tag)
 
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedButton(
                 onClick = onDelete,
@@ -359,9 +366,7 @@ fun ProductDetailsContent(
                 Text("Delete")
             }
             Button(
-                onClick = onEdit,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp)
+                onClick = onEdit, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.Edit, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
@@ -387,12 +392,23 @@ fun DetailItem(label: String, value: String, icon: ImageVector) {
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
