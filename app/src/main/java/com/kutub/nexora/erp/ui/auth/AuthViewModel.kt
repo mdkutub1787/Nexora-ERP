@@ -12,10 +12,23 @@ class AuthViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
-    fun login(email: String, name: String = "Md Kutub Uddin", phone: String = "+8801700000000") {
+    fun login(
+        email: String,
+        name: String = "Md Kutub Uddin",
+        phone: String = "+8801700000000",
+        address: String = "Dhaka, Bangladesh",
+        designation: String = "Administrator"
+    ) {
         viewModelScope.launch {
             preferencesManager.setLoggedIn(true)
-            preferencesManager.setUserProfile(name = name, email = email, phone = phone)
+            preferencesManager.setUserProfile(
+                name = name,
+                email = email,
+                phone = phone,
+                address = address,
+                designation = designation,
+                imageUri = null
+            )
         }
     }
 }

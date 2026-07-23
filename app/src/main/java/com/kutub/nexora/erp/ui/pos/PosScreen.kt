@@ -287,6 +287,8 @@ fun PosProductCard(
     product: ProductEntity, currency: String, selectedQuantity: Int = 0, onClick: () -> Unit
 ) {
     val dimens = MaterialTheme.dimens
+    val primaryColor = MaterialTheme.colorScheme.primary
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -297,7 +299,7 @@ fun PosProductCard(
                              else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.08f)
         ),
         border = if (selectedQuantity > 0) androidx.compose.foundation.BorderStroke(
-            2.dp, com.kutub.nexora.erp.ui.theme.PrimaryIndigo
+            2.dp, primaryColor
         ) else androidx.compose.foundation.BorderStroke(
             1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
         ),
@@ -313,15 +315,15 @@ fun PosProductCard(
                             .size(44.dp)
                             .clip(CircleShape)
                             .background(
-                                if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(alpha = 0.12f)
+                                if (product.stockQuantity > 0) primaryColor.copy(alpha = 0.12f)
                                 else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.12f)
                             ), contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = product.name.takeIf { it.isNotBlank() }?.substring(0, 1)
                                 ?.uppercase() ?: "P",
-                            fontWeight = FontWeight.Black,
-                            color = if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo else com.kutub.nexora.erp.ui.theme.ExpenseRed
+                            fontWeight = FontWeight.Bold,
+                            color = if (product.stockQuantity > 0) primaryColor else com.kutub.nexora.erp.ui.theme.ExpenseRed
                         )
                     }
                     Spacer(modifier = Modifier.width(12.dp))
@@ -329,7 +331,7 @@ fun PosProductCard(
                         Text(
                             text = product.name,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -354,8 +356,8 @@ fun PosProductCard(
                     Text(
                         text = "${currency}${product.price}",
                         style = MaterialTheme.typography.titleLarge,
-                        color = com.kutub.nexora.erp.ui.theme.PrimaryIndigo,
-                        fontWeight = FontWeight.Black
+                        color = primaryColor,
+                        fontWeight = FontWeight.Bold
                     )
 
                     Surface(
@@ -367,7 +369,7 @@ fun PosProductCard(
                         Text(
                             text = if (product.stockQuantity > 0) "Stock: ${product.stockQuantity}" else "Out",
                             style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen
                                     else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber
                                     else com.kutub.nexora.erp.ui.theme.ExpenseRed,
@@ -383,7 +385,7 @@ fun PosProductCard(
                         .padding(8.dp)
                         .size(24.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = primaryColor,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
                     Box(contentAlignment = Alignment.Center) {

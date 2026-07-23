@@ -27,6 +27,7 @@ import com.kutub.nexora.erp.ui.product.AddEditProductScreen
 import com.kutub.nexora.erp.ui.product.ProductListScreen
 import com.kutub.nexora.erp.ui.profile.ProfileScreen
 import com.kutub.nexora.erp.ui.settings.SettingsScreen
+import com.kutub.nexora.erp.ui.notifications.NotificationScreen
 
 @Composable
 fun AppNavGraph(
@@ -122,7 +123,13 @@ fun AppNavGraph(
                     onNavigateToSalesHistory = { navController.navigate("sales_history_route") },
                     onNavigateToReports = { navController.navigate("reports_route") },
                     onNavigateToSettings = { navController.navigate("settings_route") },
-                    onNavigateToProfile = { navController.navigate("profile_route") })
+                    onNavigateToProfile = { navController.navigate("profile_route") },
+                    onNavigateToNotifications = { navController.navigate("notification_route") }
+                )
+            }
+
+            composable("notification_route") {
+                NotificationScreen(onNavigateBack = { navController.popBackStack() })
             }
 
             composable("pos_route") {

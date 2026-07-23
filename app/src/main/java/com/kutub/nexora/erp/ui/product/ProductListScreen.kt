@@ -127,7 +127,7 @@ fun ProductListScreen(
             } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(10.dp), // Reduced from dimens.paddingMedium
+                contentPadding = PaddingValues(10.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                     items(uiState.products) { product ->
@@ -174,21 +174,23 @@ fun SearchBar(
 fun ProductCard(
     product: ProductEntity, currency: String, onClick: () -> Unit
 ) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp), // Reduced from 24
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp), // Reduced from 4
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         border = androidx.compose.foundation.BorderStroke(
             1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(14.dp) // Reduced from 18
+            modifier = Modifier.padding(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -200,12 +202,10 @@ fun ProductCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(46.dp) // Reduced from 52
+                            .size(46.dp)
                             .clip(CircleShape)
                             .background(
-                                if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(
-                                    alpha = 0.12f
-                                )
+                                if (product.stockQuantity > 0) primaryColor.copy(alpha = 0.12f)
                                 else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.12f)
                             ), contentAlignment = Alignment.Center
                     ) {
@@ -222,8 +222,8 @@ fun ProductCard(
                             Text(
                                 text = product.name.takeIf { it.isNotBlank() }?.substring(0, 1)
                                     ?.uppercase() ?: "P",
-                                fontWeight = FontWeight.Black,
-                                color = if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo else com.kutub.nexora.erp.ui.theme.ExpenseRed,
+                                fontWeight = FontWeight.Bold,
+                                color = if (product.stockQuantity > 0) primaryColor else com.kutub.nexora.erp.ui.theme.ExpenseRed,
                                 style = MaterialTheme.typography.titleLarge
                             )
                         }
@@ -249,18 +249,14 @@ fun ProductCard(
 
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen.copy(
-                        alpha = 0.15f
-                    )
-                    else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber.copy(
-                        alpha = 0.15f
-                    )
+                    color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen.copy(alpha = 0.15f)
+                    else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber.copy(alpha = 0.15f)
                     else com.kutub.nexora.erp.ui.theme.ExpenseRed.copy(alpha = 0.15f)
                 ) {
                     Text(
                         text = if (product.stockQuantity > 0) "Stock: ${product.stockQuantity}" else "Out of Stock",
                         style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         color = if (product.stockQuantity > 5) com.kutub.nexora.erp.ui.theme.IncomeGreen
                         else if (product.stockQuantity in 1..5) com.kutub.nexora.erp.ui.theme.WarningAmber
                         else com.kutub.nexora.erp.ui.theme.ExpenseRed,
@@ -301,8 +297,8 @@ fun ProductCard(
                     Text(
                         text = "$currency${product.price}",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black,
-                        color = com.kutub.nexora.erp.ui.theme.PrimaryIndigo
+                        fontWeight = FontWeight.ExtraBold,
+                        color = primaryColor
                     )
                 }
             }
