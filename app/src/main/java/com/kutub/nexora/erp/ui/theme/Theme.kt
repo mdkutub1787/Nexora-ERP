@@ -3,15 +3,12 @@ package com.kutub.nexora.erp.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -23,11 +20,11 @@ private val DarkColorScheme = darkColorScheme(
     primaryContainer = PrimaryIndigoDark,
     onPrimaryContainer = DarkTextPrimary,
     secondary = AccentViolet,
-    onSecondary = androidx.compose.ui.graphics.Color.White,
+    onSecondary = Color.White,
     secondaryContainer = DarkSurfaceVariant,
     onSecondaryContainer = DarkTextPrimary,
     tertiary = IncomeGreen,
-    onTertiary = androidx.compose.ui.graphics.Color.White,
+    onTertiary = Color.White,
     background = DarkBackground,
     surface = DarkSurface,
     onBackground = DarkTextPrimary,
@@ -36,20 +33,20 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = DarkTextSecondary,
     outlineVariant = DarkBorderColor,
     error = ExpenseRed,
-    onError = androidx.compose.ui.graphics.Color.White
+    onError = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryIndigo,
-    onPrimary = androidx.compose.ui.graphics.Color.White,
+    onPrimary = Color.White,
     primaryContainer = PrimaryIndigo.copy(alpha = 0.12f),
     onPrimaryContainer = PrimaryIndigoDark,
     secondary = AccentViolet,
-    onSecondary = androidx.compose.ui.graphics.Color.White,
+    onSecondary = Color.White,
     secondaryContainer = AccentViolet.copy(alpha = 0.12f),
     onSecondaryContainer = AccentViolet,
     tertiary = IncomeGreen,
-    onTertiary = androidx.compose.ui.graphics.Color.White,
+    onTertiary = Color.White,
     background = LightBackground,
     surface = LightSurface,
     onBackground = TextPrimary,
@@ -58,13 +55,14 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = TextSecondary,
     outlineVariant = LightBorderColor,
     error = ExpenseRed,
-    onError = androidx.compose.ui.graphics.Color.White
+    onError = Color.White
 )
 
 @Composable
 fun NexoraERPTheme(
     themeMode: String = "system",
     dynamicColor: Boolean = false,
+    primaryColorHex: String? = null,
     windowWidthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
     content: @Composable () -> Unit
 ) {
@@ -74,13 +72,27 @@ fun NexoraERPTheme(
         else -> isSystemInDarkTheme()
     }
 
-    val colorScheme = when {
+    var colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    // Apply custom primary color if provided
+    primaryColorHex?.let { hex ->
+        try {
+            val color = Color(android.graphics.Color.parseColor(hex))
+            colorScheme = colorScheme.copy(
+                primary = color,
+                primaryContainer = color.copy(alpha = 0.15f),
+                onPrimaryContainer = if (darkTheme) Color.White else color
+            )
+        } catch (e: Exception) {
+            // Fallback to default
+        }
     }
 
     val dimens = when (windowWidthSizeClass) {
@@ -94,7 +106,7 @@ fun NexoraERPTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.surface.toArgb()
+            window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }

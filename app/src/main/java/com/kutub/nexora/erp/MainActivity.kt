@@ -49,10 +49,12 @@ class MainActivity : AppCompatActivity() {
     private fun setupContent() {
         setContent {
             val themeMode by preferencesManager.themeModeFlow.collectAsState(initial = "system")
+            val themeColor by preferencesManager.themeColorFlow.collectAsState(initial = "#6366F1")
             val windowSizeClass = calculateWindowSizeClass(this)
             
             NexoraERPTheme(
                 themeMode = themeMode,
+                primaryColorHex = themeColor,
                 windowWidthSizeClass = windowSizeClass.widthSizeClass
             ) {
                 val navController = rememberNavController()

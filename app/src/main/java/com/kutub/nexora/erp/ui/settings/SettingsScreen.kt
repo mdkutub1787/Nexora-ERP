@@ -13,6 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -127,7 +129,7 @@ fun SettingsScreen(
                 checked = currentTheme == "dark",
                 onCheckedChange = { isDark -> viewModel.setThemeMode(if (isDark) "dark" else "light") }
             )
-            
+
             Spacer(Modifier.height(dimens.paddingLarge))
 
             SettingsToggleItem(
@@ -140,6 +142,12 @@ fun SettingsScreen(
                     viewModel.setLanguage(newLang)
                     LocaleHelper.applyLocale(newLang)
                 }
+            )
+
+            Spacer(Modifier.height(dimens.paddingLarge))
+
+            ThemeColorPickerItem(
+                onColorSelect = { viewModel.setThemeColor(it) }
             )
 
             Spacer(Modifier.weight(1f))
@@ -175,6 +183,51 @@ fun SettingsScreen(
                 Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Logout", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+fun ThemeColorPickerItem(onColorSelect: (String) -> Unit) {
+    val dimens = com.kutub.nexora.erp.ui.theme.LocalDimens.current
+    val colors = listOf(
+        "#6366F1", // Indigo
+        "#10B981", // Emerald
+        "#F59E0B", // Amber
+        "#EF4444", // Red
+        "#3B82F6", // Blue
+        "#8B5CF6"  // Violet
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(22.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(dimens.paddingLarge)) {
+            Text(
+                "App Theme Color",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(dimens.paddingMedium))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                colors.forEach { hex ->
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color(android.graphics.Color.parseColor(hex)))
+                            .clickable { onColorSelect(hex) }
+                    )
+                }
             }
         }
     }

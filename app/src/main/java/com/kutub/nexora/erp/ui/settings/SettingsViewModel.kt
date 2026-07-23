@@ -24,6 +24,9 @@ class SettingsViewModel @Inject constructor(
     val currentCurrency: StateFlow<String> = preferencesManager.currencyFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "$")
 
+    val themeColor: StateFlow<String> = preferencesManager.themeColorFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "#6366F1")
+
     val isBiometricEnabled: StateFlow<Boolean> = preferencesManager.biometricEnabledFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
@@ -37,6 +40,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setCurrency(currency: String) {
         viewModelScope.launch { preferencesManager.setCurrency(currency) }
+    }
+
+    fun setThemeColor(hex: String) {
+        viewModelScope.launch { preferencesManager.setThemeColor(hex) }
     }
 
     fun setBiometricEnabled(enabled: Boolean) {

@@ -125,11 +125,11 @@ fun ProductListScreen(
             } else if (uiState.products.isEmpty()) {
                 EmptyState(message = if (searchQuery.isBlank()) "Your inventory is empty" else "No matching products found")
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(dimens.paddingMedium),
-                    verticalArrangement = Arrangement.spacedBy(dimens.paddingSmall)
-                ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(10.dp), // Reduced from dimens.paddingMedium
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                     items(uiState.products) { product ->
                         ProductCard(
                             product = product,
@@ -178,17 +178,17 @@ fun ProductCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(16.dp), // Reduced from 24
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp), // Reduced from 4
         border = androidx.compose.foundation.BorderStroke(
             1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(18.dp)
+            modifier = Modifier.padding(14.dp) // Reduced from 18
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -200,7 +200,7 @@ fun ProductCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(52.dp)
+                            .size(46.dp) // Reduced from 52
                             .clip(CircleShape)
                             .background(
                                 if (product.stockQuantity > 0) com.kutub.nexora.erp.ui.theme.PrimaryIndigo.copy(

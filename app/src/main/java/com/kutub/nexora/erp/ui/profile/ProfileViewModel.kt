@@ -24,15 +24,31 @@ class ProfileViewModel @Inject constructor(
     val userPhone: StateFlow<String> = preferencesManager.userPhoneFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
-    fun updateProfile(name: String, email: String, phone: String) {
+    val userAddress: StateFlow<String> = preferencesManager.userAddressFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
+    val userDesignation: StateFlow<String> = preferencesManager.userDesignationFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
+    val userImage: StateFlow<String?> = preferencesManager.userImageFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun updateProfile(
+        name: String,
+        email: String,
+        phone: String,
+        address: String,
+        designation: String,
+        imageUri: String?
+    ) {
         viewModelScope.launch {
-            preferencesManager.setUserProfile(name, email, phone)
+            preferencesManager.setUserProfile(name, email, phone, address, designation, imageUri)
         }
     }
 
     fun logout() {
         viewModelScope.launch {
-            preferencesManager.setLoggedIn(false)
+            preferencesManager.logout()
         }
     }
 }
