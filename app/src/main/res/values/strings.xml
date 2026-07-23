@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Nexora POS &amp; Inventory</string>
+    <string name="app_name">SMART ERP</string>
     <string name="dashboard">Dashboard</string>
     <string name="inventory">Inventory</string>
     <string name="products">Products</string>
@@ -36,3 +36,4 @@
     <string name="edit">Edit</string>
     <string name="logout">Logout</string>
 </resources>
+

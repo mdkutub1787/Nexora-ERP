@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.hilt)
@@ -10,11 +10,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.kutub.nexora.erp"
+    namespace = "com.kutub.smarterp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.kutub.nexora.erp"
+        applicationId = "com.kutub.smarterp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -107,3 +107,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+

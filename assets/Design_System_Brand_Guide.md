@@ -1,7 +1,7 @@
-# Nexora ERP - Design System & Brand Guide
+﻿# SmartERP ERP - Design System & Brand Guide
 
 ## Brand Overview
-**Nexora ERP** is designed to be a smart, scalable, and seamless Enterprise Resource Planning system for modern businesses. The brand communicates trust, efficiency, and cutting-edge technology.
+**SmartERP ERP** is designed to be a smart, scalable, and seamless Enterprise Resource Planning system for modern businesses. The brand communicates trust, efficiency, and cutting-edge technology.
 
 ## 1. Brand Colors
 The color palette uses a combination of corporate blue for trust and vibrant cyan for modern tech appeal.
@@ -26,3 +26,4 @@ The app uses clear, highly legible typography suitable for data-dense dashboards
 - **Cards:** Used extensively on the Dashboard and Product List. Elevated with subtle shadows.
 - **Buttons:** Fully rounded corners for primary buttons to give a friendly, clickable feel.
 - **Text Fields:** Outlined text fields with smooth corner radius.
+

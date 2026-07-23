@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Nexora ERP</string>
+    <string name="app_name">Smart ERP</string>
     <string name="dashboard">ড্যাশবোর্ড</string>
     <string name="inventory">ইনভেন্টরি</string>
     <string name="products">প্রোডাক্টস</string>
@@ -36,3 +36,4 @@
     <string name="edit">এডিট</string>
     <string name="logout">লগআউট</string>
 </resources>
+
