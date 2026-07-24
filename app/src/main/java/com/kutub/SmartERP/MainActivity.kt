@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import com.kutub.smarterp.utils.BiometricHelper
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import androidx.activity.enableEdgeToEdge
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         
         lifecycleScope.launch {

@@ -115,6 +115,7 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .systemBarsPadding()
     ) {
         // Top Hero Gradient Background Header (Inspired by Daily Finance)
         Box(
